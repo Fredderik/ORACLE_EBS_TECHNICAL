@@ -1,26 +1,26 @@
-/* 
-==================================================================
-File name		: cp_and_executable.sql
-Author			: Freddy E. Aparicio M.
-Creation date	: 23/03/2025
-Description		: Main details of the concurrent and executable
-Ver				: 1.0
-Parameters		: The parameters are based on information 
-				  from the concurrent program
-				  
-				 >Optionals:
-					p_language:
-					p_concurrent_program_name:
-					p_user_concurrent_program_name:
-					p_concurrent_program_id:
-				 
-Notes			: EBS R11 AND R12
+/*
+╔═════════════════════════════════════════════════════════════════════╗
+║  File Name      : cp_and_executable.sql                             ║
+║  Author         : Freddy E. Aparicio M.                             ║
+║  Creation Date  : 23/03/2025                                        ║
+║  Version        : 1.0                                               ║
+║  Description    : Main details of the concurrent and executable.    ║
+║                                                                     ║
+║  Parameters     : The parameters are based on information from the  ║
+║                   concurrent program.                               ║
+║     - Optionals:                                                    ║
+║       * p_language                                                  ║
+║       * p_concurrent_program_name                                   ║
+║       * p_user_concurrent_program_name                              ║
+║       * p_concurrent_program_id                                     ║
+║                                                                     ║
+║  Notes          : Compatible with Oracle EBS R11 and R12.           ║
+║                                                                     ║
+║  Updates        :                                                   ║
+║     - 23/03/2025: Creation - Freddy E. Aparicio M.                  ║
+╚═════════════════════════════════════════════════════════════════════╝
+*/
 
-Update date		: 
-				  Creation 23/03/2025 - Freddy E. Aparicio M.
-					
-
-================================================================== */
 /
 SELECT
     fcp.enabled_flag,
