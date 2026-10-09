@@ -54,6 +54,12 @@ Las mejoras, correcciones y nuevos ejemplos pueden proponerse mediante issues o 
 
 Cada nuevo recurso debería incluir su propósito, requisitos, parámetros, ejemplo de uso y versiones en las que fue probado. Los ejemplos deben utilizar datos ficticios y omitir credenciales o información de clientes.
 
-## Autor
+## Sobre el autor
 
-**Freddy E. Aparicio M.** · [Fredderik](https://github.com/Fredderik)
+**Freddy E. Aparicio M.**
+
+Ingeniero de Sistemas y especialista en Desarrollo de Software, con más de 10 años de experiencia profesional. Su trayectoria técnica incluye desarrollo backend y trabajo con **PL/SQL, Oracle E-Business Suite y Java**, en proyectos de desarrollo e integración.
+
+Este repositorio busca compartir conocimientos y recursos prácticos de desarrollo sobre Oracle EBS, para apoyar a otros desarrolladores y consultores técnicos.
+
+[Perfil profesional en LinkedIn](https://www.linkedin.com/in/freddyaparicio/) · [GitHub](https://github.com/Fredderik)
