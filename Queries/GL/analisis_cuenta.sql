@@ -1,35 +1,38 @@
 /*
-╔═════════════════════════════════════════════════════════════════════════════╗
-║  File Name      : analisis_cuenta.sql                                       ║
-║  Author         : Freddy E. Aparicio M.                                     ║
-║  Creation Date  : 09/10/2026                                                ║
-║  Version        : 1.0                                                       ║
-║  Description    : Posted account detail versus GL_BALANCES.                 ║
-║                                                                             ║
-║  Parameters     : Explicit bind variables.                                  ║
-║    - Required:                                                              ║
-║      * p_ledger_id (NUMBER)                                                 ║
-║      * p_period_name (VARCHAR2; exact GL period)                            ║
-║      * p_account_value (VARCHAR2; natural account, keep leading zeros)      ║
-║    - Optionals (NULL means no filter):                                      ║
-║      * p_code_combination_id (NUMBER; restrict one combination)             ║
-║      * p_tolerance (NUMBER; NULL=0.01, only Query 2)                        ║
-║                                                                             ║
-║  Notes          : Oracle EBS R12 onwards; base table names.                 ║
-║                   No runtime certification on an EBS instance.              ║
-║                   Actual posted journals; ledger currency; detail accounts. ║
-║                   No source/category/date subfilter: same balance scope.    ║
-║                   GL_ACCOUNT qualifier determines SEGMENT1..SEGMENT30.      ║
-║                   Historical disabled combinations remain included.         ║
-║                                                                             ║
-║  Updates        :                                                           ║
-║    - 09/10/2026: Creation - Freddy E. Aparicio M.                           ║
-╚═════════════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  Archivo        : analisis_cuenta.sql                                             ║
+║  Autor          : Freddy E. Aparicio M.                                           ║
+║  Fecha creación : 09/10/2026                                                      ║
+║  Versión        : 1.1                                                             ║
+║  Descripción    : Detalle contabilizado y conciliación con GL_BALANCES.           ║
+║                                                                                   ║
+║  Parámetros     : Variables de enlace explícitas.                                 ║
+║    - Obligatorios:                                                                ║
+║      * p_ledger_id (NUMBER)                                                       ║
+║      * p_period_name (VARCHAR2; período GL exacto)                                ║
+║      * p_account_value (VARCHAR2; cuenta natural con ceros iniciales)             ║
+║    - Opcionales (NULL omite el filtro, salvo indicación):                         ║
+║      * p_code_combination_id (NUMBER; una combinación)                            ║
+║      * p_tolerance (NUMBER; NULL=0.01, solo consulta 2)                           ║
+║                                                                                   ║
+║  Notas          : Oracle EBS R12 en adelante; nombres de tablas base.             ║
+║                   Uniones por igualdad en WHERE; externas con (+).                ║
+║                   Sin valores predeterminados del contexto de sesión.             ║
+║                   Pendiente validación de ejecución en Oracle EBS.                ║
+║                   Asientos reales contabilizados; moneda del libro.               ║
+║                   Mismo alcance del saldo, sin filtrar origen, categoría o fecha. ║
+║                   GL_ACCOUNT identifica la columna entre SEGMENT1 y SEGMENT30.    ║
+║                   Se incluyen combinaciones históricas deshabilitadas.            ║
+║                                                                                   ║
+║  Actualizaciones:                                                                 ║
+║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                      ║
+║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
 */
 
---Query 1: Period detail. Analytic totals REPEAT; do not sum those columns.
---All entered currencies except STAT contribute their ACCOUNTED amounts.
---For zero activity Query 1 can be empty; inspect Query 2.
+--Consulta 1: Detalle del período. Los totales se REPITEN; no sumarlos de nuevo.
+--Se suman importes ACCOUNTED de todas las monedas ingresadas excepto STAT.
+--Sin movimiento, la consulta 1 puede estar vacía; revisar la consulta 2.
 WITH ledger_scope AS (
     SELECT gl.ledger_id, gl.name ledger_name, gl.currency_code,
            gl.chart_of_accounts_id,
@@ -79,10 +82,10 @@ WITH ledger_scope AS (
             WHEN 'SEGMENT29' THEN gcc.segment29
             WHEN 'SEGMENT30' THEN gcc.segment30
         END account_value
-      FROM ledger_scope ls
-      JOIN gl_code_combinations gcc
-        ON gcc.chart_of_accounts_id = ls.chart_of_accounts_id
-     WHERE gcc.summary_flag = 'N'
+      FROM ledger_scope ls,
+           gl_code_combinations gcc
+     WHERE gcc.chart_of_accounts_id = ls.chart_of_accounts_id
+       AND gcc.summary_flag = 'N'
        AND (:p_code_combination_id IS NULL OR gcc.code_combination_id = :p_code_combination_id)
        AND CASE ls.account_column
             WHEN 'SEGMENT1' THEN gcc.segment1
@@ -125,11 +128,14 @@ WITH ledger_scope AS (
            nvl(gjl.entered_cr, 0) entered_cr,
            nvl(gjl.accounted_dr, 0) accounted_dr,
            nvl(gjl.accounted_cr, 0) accounted_cr
-      FROM selected_accounts sa
-      JOIN gl_je_lines gjl ON gjl.code_combination_id = sa.code_combination_id
-      JOIN gl_je_headers gjh ON gjh.je_header_id = gjl.je_header_id
-      JOIN gl_je_batches gjb ON gjb.je_batch_id = gjh.je_batch_id
-     WHERE gjh.ledger_id = sa.ledger_id
+      FROM selected_accounts sa,
+           gl_je_lines gjl,
+           gl_je_headers gjh,
+           gl_je_batches gjb
+     WHERE gjl.code_combination_id = sa.code_combination_id
+       AND gjh.je_header_id = gjl.je_header_id
+       AND gjb.je_batch_id = gjh.je_batch_id
+       AND gjh.ledger_id = sa.ledger_id
        AND gjh.period_name = :p_period_name
        AND gjh.status = 'P'
        AND gjh.actual_flag = 'A'
@@ -152,15 +158,16 @@ SELECT sa.ledger_id, sa.ledger_name, :p_period_name period_name,
        sum(pl.accounted_dr) OVER () account_period_dr,
        sum(pl.accounted_cr) OVER () account_period_cr,
        sum(pl.accounted_dr - pl.accounted_cr) OVER () account_period_net
-  FROM selected_accounts sa
-  JOIN posted_lines pl ON pl.code_combination_id = sa.code_combination_id
+  FROM selected_accounts sa,
+       posted_lines pl
+ WHERE pl.code_combination_id = sa.code_combination_id
  ORDER BY sa.code_combination_id, pl.je_header_id, pl.je_line_num
 /
---Query 2: Same ledger, period, natural account and optional CCID.
---Movement = PERIOD_NET_DR - PERIOD_NET_CR.
---Closing = opening + movement, not movement alone.
---Opening is read from GL_BALANCES, not independently rebuilt from history.
---No GL_BALANCES row is reported explicitly, never labelled CUADRA.
+--Consulta 2: Mismo libro, período, cuenta natural y CCID opcional.
+--Movimiento = PERIOD_NET_DR - PERIOD_NET_CR.
+--Saldo final = saldo inicial + movimiento.
+--El saldo inicial se lee de GL_BALANCES; no se reconstruye desde el histórico.
+--La ausencia de fila en GL_BALANCES se indica expresamente; no se marca CUADRA.
 WITH ledger_scope AS (
     SELECT gl.ledger_id, gl.name ledger_name, gl.currency_code,
            gl.chart_of_accounts_id,
@@ -210,10 +217,10 @@ WITH ledger_scope AS (
             WHEN 'SEGMENT29' THEN gcc.segment29
             WHEN 'SEGMENT30' THEN gcc.segment30
         END account_value
-      FROM ledger_scope ls
-      JOIN gl_code_combinations gcc
-        ON gcc.chart_of_accounts_id = ls.chart_of_accounts_id
-     WHERE gcc.summary_flag = 'N'
+      FROM ledger_scope ls,
+           gl_code_combinations gcc
+     WHERE gcc.chart_of_accounts_id = ls.chart_of_accounts_id
+       AND gcc.summary_flag = 'N'
        AND (:p_code_combination_id IS NULL OR gcc.code_combination_id = :p_code_combination_id)
        AND CASE ls.account_column
             WHEN 'SEGMENT1' THEN gcc.segment1
@@ -256,11 +263,14 @@ WITH ledger_scope AS (
            nvl(gjl.entered_cr, 0) entered_cr,
            nvl(gjl.accounted_dr, 0) accounted_dr,
            nvl(gjl.accounted_cr, 0) accounted_cr
-      FROM selected_accounts sa
-      JOIN gl_je_lines gjl ON gjl.code_combination_id = sa.code_combination_id
-      JOIN gl_je_headers gjh ON gjh.je_header_id = gjl.je_header_id
-      JOIN gl_je_batches gjb ON gjb.je_batch_id = gjh.je_batch_id
-     WHERE gjh.ledger_id = sa.ledger_id
+      FROM selected_accounts sa,
+           gl_je_lines gjl,
+           gl_je_headers gjh,
+           gl_je_batches gjb
+     WHERE gjl.code_combination_id = sa.code_combination_id
+       AND gjh.je_header_id = gjl.je_header_id
+       AND gjb.je_batch_id = gjh.je_batch_id
+       AND gjh.ledger_id = sa.ledger_id
        AND gjh.period_name = :p_period_name
        AND gjh.status = 'P'
        AND gjh.actual_flag = 'A'
@@ -277,12 +287,12 @@ WITH ledger_scope AS (
            sum(nvl(gb.begin_balance_cr, 0)) beginning_cr,
            sum(nvl(gb.period_net_dr, 0)) balance_dr,
            sum(nvl(gb.period_net_cr, 0)) balance_cr
-      FROM selected_accounts sa
-      JOIN gl_balances gb
-        ON gb.ledger_id = sa.ledger_id
+      FROM selected_accounts sa,
+           gl_balances gb
+     WHERE gb.ledger_id = sa.ledger_id
        AND gb.code_combination_id = sa.code_combination_id
        AND gb.currency_code = sa.currency_code
-     WHERE gb.period_name = :p_period_name
+       AND gb.period_name = :p_period_name
        AND gb.actual_flag = 'A'
        AND gb.template_id IS NULL
        AND gb.translated_flag IS NULL
@@ -299,9 +309,11 @@ WITH ledger_scope AS (
            nvl(bt.beginning_cr, 0) beginning_cr,
            nvl(bt.balance_dr, 0) balance_dr,
            nvl(bt.balance_cr, 0) balance_cr
-      FROM selected_accounts sa
-      LEFT JOIN line_totals lt ON lt.code_combination_id = sa.code_combination_id
-      LEFT JOIN balance_totals bt ON bt.code_combination_id = sa.code_combination_id
+      FROM selected_accounts sa,
+           line_totals lt,
+           balance_totals bt
+     WHERE lt.code_combination_id(+) = sa.code_combination_id
+       AND bt.code_combination_id(+) = sa.code_combination_id
 )
 SELECT r.ledger_id, r.ledger_name, :p_period_name period_name,
        r.currency_code ledger_currency,

@@ -1,32 +1,35 @@
 /*
-╔══════════════════════════════════════════════════════════════════════╗
-║  File Name      : asientos_detalle.sql                               ║
-║  Author         : Freddy E. Aparicio M.                              ║
-║  Creation Date  : 09/10/2026                                         ║
-║  Version        : 1.0                                                ║
-║  Description    : Batch, journal, lines and account combination.     ║
-║                                                                      ║
-║  Parameters     : Explicit bind variables.                           ║
-║    - Required:                                                       ║
-║      * p_ledger_id (NUMBER)                                          ║
-║      * p_period_name (VARCHAR2)                                      ║
-║      * p_language (VARCHAR2; EBS code, e.g. US)                      ║
-║    - Optionals (NULL means no filter):                               ║
-║      * p_je_batch_id (NUMBER)                                        ║
-║      * p_je_header_id (NUMBER)                                       ║
-║      * p_code_combination_id (NUMBER)                                ║
-║      * p_status (VARCHAR2; P=posted, U=unposted)                     ║
-║      * p_je_source (VARCHAR2; internal code)                         ║
-║      * p_je_category (VARCHAR2; internal code)                       ║
-║                                                                      ║
-║  Notes          : Oracle EBS R12 onwards; base table names.          ║
-║                   No runtime certification on an EBS instance.       ║
-║                   One row per journal line; all 30 segment values.   ║
-║                   Use configuracion_gl.sql for segment meanings.     ║
-║                                                                      ║
-║  Updates        :                                                    ║
-║    - 09/10/2026: Creation - Freddy E. Aparicio M.                    ║
-╚══════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║  Archivo        : asientos_detalle.sql                                        ║
+║  Autor          : Freddy E. Aparicio M.                                       ║
+║  Fecha creación : 09/10/2026                                                  ║
+║  Versión        : 1.1                                                         ║
+║  Descripción    : Lote, asiento, líneas y combinación contable.               ║
+║                                                                               ║
+║  Parámetros     : Variables de enlace explícitas.                             ║
+║    - Obligatorios:                                                            ║
+║      * p_ledger_id (NUMBER)                                                   ║
+║      * p_period_name (VARCHAR2)                                               ║
+║      * p_language (VARCHAR2; código EBS, por ejemplo US)                      ║
+║    - Opcionales (NULL omite el filtro, salvo indicación):                     ║
+║      * p_je_batch_id (NUMBER)                                                 ║
+║      * p_je_header_id (NUMBER)                                                ║
+║      * p_code_combination_id (NUMBER)                                         ║
+║      * p_status (VARCHAR2; P=contabilizado, U=sin contabilizar)               ║
+║      * p_je_source (VARCHAR2; código interno)                                 ║
+║      * p_je_category (VARCHAR2; código interno)                               ║
+║                                                                               ║
+║  Notas          : Oracle EBS R12 en adelante; nombres de tablas base.         ║
+║                   Uniones por igualdad en WHERE; externas con (+).            ║
+║                   Sin valores predeterminados del contexto de sesión.         ║
+║                   Pendiente validación de ejecución en Oracle EBS.            ║
+║                   Una fila por línea de asiento; valores de los 30 segmentos. ║
+║                   Consultar el significado en configuracion_gl.sql.           ║
+║                                                                               ║
+║  Actualizaciones:                                                             ║
+║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
+║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
 SELECT
@@ -97,20 +100,23 @@ SELECT
     gcc.segment28,
     gcc.segment29,
     gcc.segment30
-FROM gl_je_batches gjb
-JOIN gl_je_headers gjh ON gjh.je_batch_id = gjb.je_batch_id
-JOIN gl_je_lines gjl ON gjl.je_header_id = gjh.je_header_id
-JOIN gl_ledgers gl ON gl.ledger_id = gjh.ledger_id
-JOIN gl_code_combinations gcc
-    ON gcc.code_combination_id = gjl.code_combination_id
-   AND gcc.chart_of_accounts_id = gl.chart_of_accounts_id
-LEFT JOIN gl_je_sources_tl gst
-    ON gst.je_source_name = gjh.je_source
-   AND gst.language = :p_language
-LEFT JOIN gl_je_categories_tl gct
-    ON gct.je_category_name = gjh.je_category
-   AND gct.language = :p_language
-WHERE gl.ledger_id = :p_ledger_id
+FROM gl_je_batches gjb,
+     gl_je_headers gjh,
+     gl_je_lines gjl,
+     gl_ledgers gl,
+     gl_code_combinations gcc,
+     gl_je_sources_tl gst,
+     gl_je_categories_tl gct
+WHERE gjh.je_batch_id = gjb.je_batch_id
+  AND gjl.je_header_id = gjh.je_header_id
+  AND gl.ledger_id = gjh.ledger_id
+  AND gcc.code_combination_id = gjl.code_combination_id
+  AND gcc.chart_of_accounts_id = gl.chart_of_accounts_id
+  AND gst.je_source_name(+) = gjh.je_source
+  AND gst.language(+) = :p_language
+  AND gct.je_category_name(+) = gjh.je_category
+  AND gct.language(+) = :p_language
+  AND gl.ledger_id = :p_ledger_id
   AND gjh.period_name = :p_period_name
   AND (:p_je_batch_id IS NULL OR gjb.je_batch_id = :p_je_batch_id)
   AND (:p_je_header_id IS NULL OR gjh.je_header_id = :p_je_header_id)

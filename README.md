@@ -53,6 +53,14 @@ ORACLE_EBS_TECHNICAL/
         └── carga_gl_interface.sql
 ```
 
+## Convenciones de los scripts
+
+- Cabeceras, comentarios y mensajes propios en español.
+- Autor, fecha, versión e historial conservados en cada archivo.
+- Sintaxis SQL tradicional: tablas separadas por comas en `FROM` y relaciones por igualdad en `WHERE`.
+- Uniones externas mediante `(+)`, incluida la condición de idioma o cualquier otra restricción de la tabla opcional.
+- Variables de enlace explícitas para los filtros; nombres técnicos y códigos de Oracle conservados.
+
 ## Cómo utilizar los recursos
 
 Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros, conciliación y plantilla de carga](Queries/GL/README.md).

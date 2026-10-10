@@ -1,35 +1,37 @@
 /*
-╔══════════════════════════════════════════════════════════════════════╗
-║  File Name      : cp_and_executable.sql                              ║
-║  Author         : Freddy E. Aparicio M.                              ║
-║  Creation Date  : 23/03/2025                                         ║
-║  Version        : 1.1                                                ║
-║  Description    : Concurrent, executable and parameter details.      ║
-║                                                                      ║
-║  Parameters     : Enter bind values explicitly; no session defaults. ║
-║    - Required:                                                       ║
-║      * p_language (EBS language code, e.g. US)                       ║
-║      * p_security_group_id (lookup group, usually 0)                 ║
-║    - Optionals (NULL means no filter):                               ║
-║      * p_application_id (concurrent program application)             ║
-║      * p_concurrent_program_name                                     ║
-║      * p_user_concurrent_program_name                                ║
-║      * p_concurrent_program_id                                       ║
-║                                                                      ║
-║  Notes          : Target: Oracle EBS R12 onwards.                    ║
-║                   Base table names and explicit TL joins.            ║
-║                   Declare all binds before running in SQL*Plus.      ║
-║                   Runtime validation in EBS is still required.       ║
-║                                                                      ║
-║  Updates        :                                                    ║
-║    - 23/03/2025: Creation - Freddy E. Aparicio M.                    ║
-║    - 09/10/2026: Parameter query and explicit lookup security group. ║
-║    -             Complete executable join; R12 scope.                ║
-╚══════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║  Archivo        : cp_and_executable.sql                                       ║
+║  Autor          : Freddy E. Aparicio M.                                       ║
+║  Fecha creación : 23/03/2025                                                  ║
+║  Versión        : 1.2                                                         ║
+║  Descripción    : Concurrentes, ejecutables y parámetros.                     ║
+║                                                                               ║
+║  Parámetros     : Variables de enlace explícitas.                             ║
+║    - Obligatorios:                                                            ║
+║      * p_language (código de idioma EBS; por ejemplo, US)                     ║
+║      * p_security_group_id (grupo de seguridad; normalmente 0)                ║
+║    - Opcionales (NULL omite el filtro, salvo indicación):                     ║
+║      * p_application_id (aplicación del concurrente)                          ║
+║      * p_concurrent_program_name                                              ║
+║      * p_user_concurrent_program_name                                         ║
+║      * p_concurrent_program_id                                                ║
+║                                                                               ║
+║  Notas          : Oracle EBS R12 en adelante; nombres de tablas base.         ║
+║                   Uniones por igualdad en WHERE; externas con (+).            ║
+║                   Sin valores predeterminados del contexto de sesión.         ║
+║                   Pendiente validación de ejecución en Oracle EBS.            ║
+║                   Declarar todas las variables antes de ejecutar en SQL*Plus. ║
+║                                                                               ║
+║  Actualizaciones:                                                             ║
+║    23/03/2025: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
+║    09/10/2026: Versión 1.1. Consulta de parámetros y grupo explícito.         ║
+║                Unión completa del ejecutable; alcance R12.                    ║
+║    10/10/2026: Versión 1.2. Comentarios y cabecera en español.                ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
---Query 1: Concurrent program and its executable.
---The slash executes this SELECT once; do not add a semicolon before it.
+--Consulta 1: Programa concurrente y su ejecutable.
+--La barra / ejecuta este SELECT una vez; no añadir punto y coma antes.
 SELECT
     fcp.application_id,
     fcp.concurrent_program_id,
@@ -65,7 +67,7 @@ WHERE
     AND flv.security_group_id = :p_security_group_id
     AND flv.lookup_type = 'CP_EXECUTION_METHOD_CODE'
     AND fcpt.language = :p_language
-    --User parameters optional from Concurrent program
+    --Filtros opcionales del programa concurrente.
     AND fcp.application_id = nvl(:p_application_id, fcp.application_id)
     AND fcp.concurrent_program_name = nvl(:p_concurrent_program_name, fcp.concurrent_program_name)
     AND fcpt.user_concurrent_program_name = nvl(:p_user_concurrent_program_name, fcpt.user_concurrent_program_name)
@@ -75,9 +77,9 @@ ORDER BY
     fcp.concurrent_program_name,
     fcp.concurrent_program_id
 /
---Query 2: Parameters defined for the same concurrent program selection.
---Includes enabled and disabled parameters; programs without parameters
---have no rows here. The security group bind is only used by Query 1.
+--Consulta 2: Parámetros de la misma selección de programas concurrentes.
+--Incluye parámetros habilitados y deshabilitados. Los programas sin
+--parámetros no generan filas. El grupo de seguridad solo se usa en la consulta 1.
 SELECT
     fcp.application_id,
     fcp.concurrent_program_id,
@@ -117,7 +119,7 @@ WHERE
     AND fcut.language = fcpt.language
     AND fcu.flex_value_set_id = fvs.flex_value_set_id(+)
     AND fcpt.language = :p_language
-    --Same optional Concurrent program filters as Query 1
+    --Los mismos filtros opcionales del concurrente que en la consulta 1.
     AND fcp.application_id = nvl(:p_application_id, fcp.application_id)
     AND fcp.concurrent_program_name = nvl(:p_concurrent_program_name, fcp.concurrent_program_name)
     AND fcpt.user_concurrent_program_name = nvl(:p_user_concurrent_program_name, fcpt.user_concurrent_program_name)

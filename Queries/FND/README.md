@@ -24,6 +24,8 @@ Usuarios y responsabilidades, menús y funciones, perfiles, solicitudes concurre
 ## Criterios de las consultas
 
 - Cabecera con autor, versión, descripción, parámetros e historial.
+- Cabeceras, comentarios y mensajes en español.
+- Uniones por igualdad en `WHERE`, con tablas separadas por comas en `FROM`; uniones externas con `(+)`.
 - Tablas base y uniones explícitas con traducciones `_TL`.
 - Idioma y grupo de seguridad indicados mediante parámetros, sin obtenerlos de la sesión.
 - Filtros opcionales documentados; `NULL` permite omitirlos.

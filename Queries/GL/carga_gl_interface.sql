@@ -1,48 +1,51 @@
 /*
-╔════════════════════════════════════════════════════════════════════════════════════╗
-║  File Name      : carga_gl_interface.sql                                           ║
-║  Author         : Freddy E. Aparicio M.                                            ║
-║  Creation Date  : 09/10/2026                                                       ║
-║  Version        : 1.0                                                              ║
-║  Description    : Base two-line journal load and standard import steps.            ║
-║                                                                                    ║
-║  Parameters     : Explicit bind variables.                                         ║
-║    - Required:                                                                     ║
-║      * p_ledger_id (NUMBER)                                                        ║
-║      * p_language (VARCHAR2; EBS code matching import language)                    ║
-║      * p_je_source (VARCHAR2; internal source code)                                ║
-║      * p_je_category (VARCHAR2; internal category code)                            ║
-║      * p_accounting_date (VARCHAR2; YYYY-MM-DD)                                    ║
-║      * p_period_name (VARCHAR2; explicit normal open period)                       ║
-║      * p_group_id (NUMBER; new unique positive integer)                            ║
-║      * p_created_by (NUMBER; FND_USER.USER_ID)                                     ║
-║      * p_debit_ccid, p_credit_ccid (NUMBER; distinct detail accounts)              ║
-║      * p_amount (NUMBER; positive, ledger currency)                                ║
-║      * p_batch_name, p_journal_name (VARCHAR2)                                     ║
-║      * p_batch_description, p_journal_description (VARCHAR2)                       ║
-║      * p_debit_description, p_credit_description (VARCHAR2)                        ║
-║                                                                                    ║
-║  Notes          : Oracle EBS R12 onwards; base table names.                        ║
-║                   No runtime certification on an EBS instance.                     ║
-║                   Writes GL_INTERFACE only when YOU execute the block.             ║
-║                   No COMMIT, import request or posting is automatic.               ║
-║                   Actuals, ledger currency, ordinary period, same balancing value. ║
-║                   Not a production integration or an idempotent loader.            ║
-║                                                                                    ║
-║  Updates        :                                                                  ║
-║    - 09/10/2026: Creation - Freddy E. Aparicio M.                                  ║
-╚════════════════════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║  Archivo        : carga_gl_interface.sql                                      ║
+║  Autor          : Freddy E. Aparicio M.                                       ║
+║  Fecha creación : 09/10/2026                                                  ║
+║  Versión        : 1.1                                                         ║
+║  Descripción    : Carga base de dos líneas y pasos de importación estándar.   ║
+║                                                                               ║
+║  Parámetros     : Variables de enlace explícitas.                             ║
+║    - Obligatorios:                                                            ║
+║      * p_ledger_id (NUMBER)                                                   ║
+║      * p_language (VARCHAR2; idioma EBS de la importación)                    ║
+║      * p_je_source (VARCHAR2; código interno de origen)                       ║
+║      * p_je_category (VARCHAR2; código interno de categoría)                  ║
+║      * p_accounting_date (VARCHAR2; YYYY-MM-DD)                               ║
+║      * p_period_name (VARCHAR2; período normal abierto)                       ║
+║      * p_group_id (NUMBER; entero positivo nuevo y único)                     ║
+║      * p_created_by (NUMBER; FND_USER.USER_ID)                                ║
+║      * p_debit_ccid, p_credit_ccid (NUMBER; cuentas de detalle distintas)     ║
+║      * p_amount (NUMBER; positivo, en moneda del libro)                       ║
+║      * p_batch_name, p_journal_name (VARCHAR2)                                ║
+║      * p_batch_description, p_journal_description (VARCHAR2; admiten NULL)    ║
+║      * p_debit_description, p_credit_description (VARCHAR2; admiten NULL)     ║
+║                                                                               ║
+║  Notas          : Oracle EBS R12 en adelante; nombres de tablas base.         ║
+║                   Uniones por igualdad en WHERE; externas con (+).            ║
+║                   Sin valores predeterminados del contexto de sesión.         ║
+║                   Pendiente validación de ejecución en Oracle EBS.            ║
+║                   Escribe en GL_INTERFACE al ejecutar el bloque.              ║
+║                   Sin COMMIT, importación ni contabilización automáticos.     ║
+║                   Mismo valor de balanceo; moneda del libro; período normal.  ║
+║                   Plantilla: no es una integración productiva ni idempotente. ║
+║                                                                               ║
+║  Actualizaciones:                                                             ║
+║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
+║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
 /*
-Preparacion
+Preparación
 - Usar una fuente externa dedicada y cuentas ya existentes (CCID).
-- Declarar TODOS los binds. Las descripciones pueden quedar NULL.
-- La moneda se obtiene del libro explicitamente indicado.
-- Este ejemplo no cubre divisas, presupuestos, estadisticos, DFF,
-  periodos de ajuste ni configuraciones de saldo promedio.
-- Ejecutar en una sesion de trabajo dedicada, inicialmente en pruebas.
-- Conservar el group_id fuera de la interfaz: despues de una importacion
+- Declarar TODAS las variables de enlace. Las descripciones admiten NULL.
+- La moneda se obtiene del libro explícitamente indicado.
+- Este ejemplo no cubre divisas, presupuestos, estadísticos, campos
+  flexibles descriptivos, períodos de ajuste ni saldos promedio.
+- Ejecutar en una sesión de trabajo dedicada, inicialmente en pruebas.
+- Conservar el group_id fuera de la interfaz: después de una importación
   correcta las filas pueden desaparecer. Reejecutar puede duplicar asientos.
 */
 DECLARE
@@ -80,7 +83,7 @@ BEGIN
        OR l_amount IS NULL OR l_amount <= 0
        OR l_group_id IS NULL OR l_group_id <= 0 OR l_group_id <> trunc(l_group_id)
     THEN
-        raise_application_error(-20001, 'Complete required binds; amount/group positive; distinct CCIDs.');
+        raise_application_error(-20001, 'Completar variables obligatorias; importe y grupo positivos; CCID distintos.');
     END IF;
 
     SELECT currency_code, chart_of_accounts_id, bal_seg_column_name,
@@ -91,7 +94,7 @@ BEGIN
        AND object_type_code = 'L'
        AND completion_status_code = 'COMPLETE';
     IF nvl(l_average_flag, 'N') = 'Y' THEN
-        raise_application_error(-20002, 'Average-balance ledgers are outside this example.');
+        raise_application_error(-20002, 'Este ejemplo no admite libros con saldos promedio.');
     END IF;
 
     SELECT count(*) INTO l_count
@@ -102,7 +105,7 @@ BEGIN
        AND l_accounting_date >= start_date
        AND l_accounting_date < end_date + 1;
     IF l_count <> 1 THEN
-        raise_application_error(-20003, 'Accounting date must belong to the selected open normal period.');
+        raise_application_error(-20003, 'La fecha contable debe pertenecer al período normal abierto seleccionado.');
     END IF;
 
     SELECT count(*) INTO l_count
@@ -111,7 +114,7 @@ BEGIN
        AND (start_date IS NULL OR start_date <= sysdate)
        AND (end_date IS NULL OR end_date > sysdate);
     IF l_count <> 1 THEN
-        raise_application_error(-20004, 'CREATED_BY must identify an active EBS user.');
+        raise_application_error(-20004, 'CREATED_BY debe identificar un usuario activo de EBS.');
     END IF;
 
     SELECT je_source_key, user_je_source_name, import_using_key_flag
@@ -122,7 +125,7 @@ BEGIN
       INTO l_category_key, l_category_name
       FROM gl_je_categories_tl
      WHERE je_category_name = :p_je_category AND language = l_language;
-    --Import Using Key applies to BOTH source and category.
+    --La importación mediante clave se aplica tanto al origen como a la categoría.
     IF l_import_key = 'Y' THEN
         l_source_value := l_source_key;
         l_category_value := l_category_key;
@@ -175,14 +178,14 @@ BEGIN
            AND (cc.end_date_active IS NULL OR cc.end_date_active >= l_accounting_date)
       );
     IF l_count <> 2 OR l_distinct_bsv <> 1 THEN
-        raise_application_error(-20005, 'Two valid posting CCIDs with the same balancing value are required.');
+        raise_application_error(-20005, 'Se requieren dos CCID contabilizables válidos con el mismo valor de balanceo.');
     END IF;
 
     SELECT count(*) INTO l_count
       FROM gl_interface
      WHERE ledger_id = l_ledger_id AND group_id = l_group_id;
     IF l_count > 0 THEN
-        raise_application_error(-20006, 'Group already staged; inspect before retrying.');
+        raise_application_error(-20006, 'El grupo ya existe en la interfaz; revisar antes de reintentar.');
     END IF;
 
     INSERT INTO gl_interface (
@@ -210,14 +213,14 @@ BEGIN
         l_batch_name, :p_batch_description, l_journal_name,
         :p_journal_description, :p_credit_description
     );
-    --Uncommitted: inspect below, then explicitly COMMIT or ROLLBACK.
+    --Transacción pendiente: revisar y ejecutar explícitamente COMMIT o ROLLBACK.
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK TO gl_demo_load;
         RAISE;
 END;
 /
---Control before COMMIT; run again after Journal Import to inspect errors.
+--Control previo al COMMIT; repetir tras importar asientos para revisar errores.
 SELECT gi.ledger_id, gi.group_id, gi.status, gi.status_description,
        gi.user_je_source_name, gi.user_je_category_name,
        gi.code_combination_id, gi.accounting_date, gi.currency_code,
@@ -233,25 +236,27 @@ SELECT gi.ledger_id, gi.group_id, gi.status, gi.status_description,
  ORDER BY gi.code_combination_id;
 
 /*
-Lanzamiento estandar (realizar despues de revisar las dos filas):
-1. Confirmar la carga con COMMIT en esta sesion; o ROLLBACK para descartarla.
-2. En una responsabilidad GL con acceso al libro, abrir Import Journals
-   (habitualmente Journals > Import > Run; depende del menu).
-3. Elegir libro y origen; Specific Group ID = p_group_id.
-4. Para este ejemplo: Create Summary Journals = No; Post Errors to Suspense
-   = No; sin filtro parcial de fechas ni DFF.
-5. Pulsar Import y conservar el request_id. Revisar log, salida y
-   Journal Import Execution Report; corregir errores antes de reimportar.
+Lanzamiento estándar (realizar después de revisar las dos filas):
+1. Confirmar la carga con COMMIT en esta sesión; o ROLLBACK para descartarla.
+2. Con una responsabilidad GL con acceso al libro, abrir la ventana de
+   importación de asientos (Asientos > Importar > Ejecutar, según el menú).
+3. Elegir libro y origen; seleccionar el grupo específico p_group_id.
+4. Para este ejemplo: no crear asientos resumidos ni enviar errores a
+   cuentas transitorias; no aplicar fechas parciales ni importar campos
+   flexibles descriptivos.
+5. Iniciar la importación y conservar el request_id. Revisar el registro,
+   la salida y el informe de ejecución de importación de asientos;
+   corregir los errores antes de reimportar.
 6. Localizar y revisar el lote/asiento creado. Obtener su JE_HEADER_ID.
-7. Ejecutar el Posting estandar tras las validaciones/aprobaciones del sitio.
-   Journal Import crea asientos; GL_BALANCES cambia con Posting.
+7. Ejecutar la contabilización estándar tras validar y aprobar el asiento.
+   La importación crea asientos; la contabilización actualiza GL_BALANCES.
 8. Verificar con asientos_detalle.sql y analisis_cuenta.sql.
 
 No insertar directamente en GL_JE_HEADERS, GL_JE_LINES o GL_BALANCES.
-El script no llena GL_INTERFACE_CONTROL: la ventana estandar gestiona
-el lanzamiento. No contiene llamadas FND_REQUEST ni contexto de sesion.
-La validacion completa de EBS (cuentas, acceso, secuenciacion y reglas)
-la realiza Journal Import; las comprobaciones anteriores son preliminares.
+El script no llena GL_INTERFACE_CONTROL: la ventana estándar gestiona
+el lanzamiento. No contiene llamadas FND_REQUEST ni contexto de sesión.
+La importación estándar realiza la validación completa de EBS (cuentas,
+acceso, secuenciación y reglas); los controles anteriores son preliminares.
 
 Referencia:
 https://docs.oracle.com/cd/E18727_01/doc.121/e13627/T312864T451269.htm

@@ -1,6 +1,6 @@
 # GL — General Ledger
 
-Consultas y ejemplos técnicos de contabilidad general para Oracle EBS R12 en adelante. Conservan el formato de cabecera del repositorio, la autoría y la versión inicial **1.0**.
+Consultas y ejemplos técnicos de contabilidad general para Oracle EBS R12 en adelante. Conservan el formato de cabecera del repositorio y la autoría. La versión **1.1** incorpora comentarios y mensajes en español, tablas separadas por comas y relaciones por igualdad en `WHERE`; las uniones externas utilizan `(+)`. El historial conserva la creación de la versión 1.0.
 
 ## Archivos
 
@@ -101,7 +101,9 @@ Las comprobaciones previas no sustituyen la validación completa de Journal Impo
 
 ## Validación y referencias
 
-Las seis consultas SELECT se ejecutaron contra datos simulados en SQLite para revisar filtros, uniones y conciliación. El bloque PL/SQL recibió revisión estática; **no fue compilado ni ejecutado en Oracle**. Falta validación en una instancia EBS con su configuración y parches.
+Se verificaron filtros, uniones y conciliación con datos simulados. La revisión de sintaxis tradicional comparó los resultados anteriores y nuevos en 78 escenarios de las nueve consultas de lectura de FND y GL. Para estas pruebas se adaptó `(+)` al motor SQLite; esto no constituye validación nativa de Oracle.
+
+El bloque PL/SQL conserva su lógica; se tradujeron sus comentarios y mensajes. **No fue compilado ni ejecutado en Oracle**. Falta validación en una instancia EBS con su configuración y parches.
 
 - [Oracle EBS General Ledger User's Guide: Journal Import](https://docs.oracle.com/cd/E18727_01/doc.121/e13627/T312864T451269.htm).
 - [Oracle ETRM: GL_BALANCES (copia del esquema R12.2.2)](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnav40c0.html).

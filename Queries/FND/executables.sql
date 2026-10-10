@@ -1,29 +1,30 @@
 /*
-╔══════════════════════════════════════════════════════════════════════╗
-║  File Name      : executables.sql                                    ║
-║  Author         : Freddy E. Aparicio M.                              ║
-║  Creation Date  : 09/10/2026                                         ║
-║  Version        : 1.0                                                ║
-║  Description    : Executable details.                                ║
-║                                                                      ║
-║  Parameters     : Enter bind values explicitly; no session defaults. ║
-║    - Required:                                                       ║
-║      * p_language (EBS language code, e.g. US)                       ║
-║      * p_security_group_id (lookup group, usually 0)                 ║
-║    - Optionals (NULL means no filter):                               ║
-║      * p_application_id                                              ║
-║      * p_executable_id                                               ║
-║      * p_executable_name                                             ║
-║      * p_user_executable_name                                        ║
-║                                                                      ║
-║  Notes          : Target: Oracle EBS R12 onwards.                    ║
-║                   Base table names and explicit TL joins.            ║
-║                   Declare all binds before running in SQL*Plus.      ║
-║                   Runtime validation in EBS is still required.       ║
-║                                                                      ║
-║  Updates        :                                                    ║
-║    - 09/10/2026: Creation - Freddy E. Aparicio M.                    ║
-╚══════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════╗
+║  Archivo        : executables.sql                                     ║
+║  Autor          : Freddy E. Aparicio M.                               ║
+║  Fecha creación : 09/10/2026                                          ║
+║  Versión        : 1.1                                                 ║
+║  Descripción    : Detalle de ejecutables.                             ║
+║                                                                       ║
+║  Parámetros     : Variables de enlace explícitas.                     ║
+║    - Obligatorios:                                                    ║
+║      * p_language (código de idioma EBS; por ejemplo, US)             ║
+║      * p_security_group_id (grupo de seguridad; normalmente 0)        ║
+║    - Opcionales (NULL omite el filtro, salvo indicación):             ║
+║      * p_application_id                                               ║
+║      * p_executable_id                                                ║
+║      * p_executable_name                                              ║
+║      * p_user_executable_name                                         ║
+║                                                                       ║
+║  Notas          : Oracle EBS R12 en adelante; nombres de tablas base. ║
+║                   Uniones por igualdad en WHERE; externas con (+).    ║
+║                   Sin valores predeterminados del contexto de sesión. ║
+║                   Pendiente validación de ejecución en Oracle EBS.    ║
+║                                                                       ║
+║  Actualizaciones:                                                     ║
+║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.          ║
+║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.       ║
+╚═══════════════════════════════════════════════════════════════════════╝
 */
 
 SELECT
@@ -50,7 +51,7 @@ WHERE
     AND flv.lookup_type = 'CP_EXECUTION_METHOD_CODE'
     AND flv.view_application_id = 0
     AND flv.security_group_id = :p_security_group_id
-    --User parameters optional from Executable
+    --Filtros opcionales del ejecutable.
     AND fe.application_id = nvl(:p_application_id, fe.application_id)
     AND fe.executable_id = nvl(:p_executable_id, fe.executable_id)
     AND fe.executable_name = nvl(:p_executable_name, fe.executable_name)
