@@ -43,43 +43,74 @@ En R12.2, `fs1` y `fs2` alternan los roles `run` y `patch` durante el parcheo on
 
 ## Árbol dentro del producto
 
-Ejemplo parcial para FND; cada producto utiliza los subdirectorios que necesita:
+Esquema de referencia; no todos los productos utilizan todas las carpetas:
 
 ```text
 $APPL_TOP/
-└── fnd/
-    └── 12.0.0/                   ← FND_TOP
-        ├── sql/
+├── admin/                         ← administración global
+└── <producto>/
+    └── 12.0.0/                    ← <PROD>_TOP
+        ├── admin/                 ← administración del producto
+        │   ├── driver/
+        │   ├── import/
+        │   ├── odf/
+        │   ├── sql/
+        │   └── <idioma>/
         ├── bin/
-        ├── reports/
-        │   ├── US/
-        │   └── <idioma_instalado>/
-        ├── forms/
-        │   ├── US/
-        │   └── <idioma_instalado>/
+        ├── forms/<idioma>/
+        ├── help/<idioma>/
+        ├── html/
+        ├── include/
+        ├── java/
+        ├── lib/
+        ├── log/
+        ├── out/
+        ├── media/
         ├── mesg/
-        │   ├── US.msb
-        │   └── <idioma>.msb
+        ├── patch/
+        ├── reports/<idioma>/
         ├── resource/
-        └── admin/
-            └── sql/
+        └── sql/
 ```
 
-El nombre `12.0.0` del directorio de producto puede mantenerse en R12.1 y R12.2; no identifica por sí solo la versión exacta instalada. [Oracle EBS Concepts, R12.2](https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm).
+`12.0.0` no determina la versión exacta instalada. [Oracle EBS Concepts, R12.2](https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm).
 
-## Directorios e idioma
+## Directorios y tipos de archivo
 
-| Ruta dentro de PROD_TOP | Uso habitual | Organización por idioma |
+Resumen de **todas las entradas de la tabla 2-1** de [Oracle EBS Concepts, R12.1](https://docs.oracle.com/cd/E18727_01/doc.121/e12841/T120505T120509.htm), contrastado con [Product Files, R12.2](https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm).
+
+Rutas relativas a `<PROD>_TOP`. **S**: subcarpetas por idioma; **F**: idioma en el archivo; **—**: la tabla no prescribe separación lingüística.
+
+| Ruta | Función / tipos de archivo | Idioma |
 | --- | --- | --- |
-| `sql/` | Scripts SQL*Plus para concurrentes. | No se divide normalmente por idioma. |
-| `bin/` | Ejecutables y scripts de shell. | No se divide normalmente por idioma. |
-| `reports/<idioma>/` | Definiciones Oracle Reports, por ejemplo `.rdf`. | Sí: subdirectorios por idioma. |
-| `forms/<idioma>/` | Formularios compilados `.fmx`. | Sí: subdirectorios por idioma. |
-| `mesg/` | Mensajes binarios `.msb`. | Idioma en el nombre del archivo. |
-| `resource/` | Bibliotecas de Oracle Forms `.pll`. | Generalmente compartidas. |
-| `admin/sql/` | Scripts de mantenimiento y creación de objetos PL/SQL. | Normalmente sin separación por idioma. |
+| `admin/` | Actualización del producto; puede contener cargas traducidas. | S, parcialmente |
+| `admin/driver/` | Controladores de actualización: `.drv`. | — |
+| `admin/import/` | DataMerge: actualización de datos semilla. | — |
+| `admin/odf/` | Definiciones de objetos: `.odf`. | — |
+| `admin/sql/` | Actualización SQL*Plus; creación PL/SQL: `.pkh`, `.pkb`, `.pls`. | — |
+| `bin/` | Concurrentes, programas C y scripts shell. | — |
+| `forms/` | Formularios ejecutables: `.fmx`. | S |
+| `help/` | Fuentes de ayuda online. | S |
+| `html/` | HTML, JavaScript y JSP. | — |
+| `include/` | Cabeceras C: `.h`. | — |
+| `java/` | JAR y dependencias Java; copias en `AF_JLIB`. | — |
+| `lib/` | Reenlace: objetos `.o/.OBJ`, bibliotecas `.a/.DLL`, reglas `.mk`. | — |
+| `log/`, `out/` | Logs y salidas; `.mgr` del gestor, `.req` del proceso. | — |
+| `media/` | Imágenes; R12.1 especifica `.gif`. | — |
+| `mesg/` | Mensajes binarios: `.msb`. | F |
+| `patch/` | Parches de datos/modelo. | — |
+| `reports/` | Oracle Reports: `.rdf`. | S |
+| `resource/` | Bibliotecas Forms: `.pll`, copiadas a `AU_TOP`. | — |
+| `sql/` | Concurrentes SQL*Plus: `.sql`. | — |
 
-`US` representa inglés americano; los demás códigos corresponden a idiomas instalados. Una carpeta sin división por idioma no implica que su código sea independiente de NLS. La organización anterior se basa en [Oracle EBS Concepts — Product Directories y Language Files](https://docs.oracle.com/cd/E18727_01/doc.121/e12841/T120505T120509.htm).
+### Cómo interpretar las rutas
+
+- `admin/sql` y `sql` tienen funciones distintas; por eso SQL aparece dos veces.
+- `APPL_TOP/admin` administra el conjunto; `PROD_TOP/admin`, el producto.
+- Con logs centralizados, las carpetas de producto dejan de utilizarse, salvo la excepción documentada de `FND_TOP`.
+- `US` identifica inglés americano y `D`, alemán: por ejemplo, `reports/US` o `mesg/D.msb`.
+
+Estas precisiones proceden de la [tabla 2-1 y Language Files](https://docs.oracle.com/cd/E18727_01/doc.121/e12841/T120505T120509.htm). **—** no significa independencia de NLS: comprueba la configuración del componente. En particular, no presupongas carpetas de idioma para `sql` o `bin`.
 
 ## Relación con las consultas FND
 
