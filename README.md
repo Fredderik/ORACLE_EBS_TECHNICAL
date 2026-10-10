@@ -27,7 +27,8 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
-| [Consulta de programas concurrentes y ejecutables](Queries/FND/cp_and_executable.sql) | Consulta de datos del programa concurrente y su ejecutable, con filtros por idioma, nombre técnico, nombre visible e identificador del programa. |
+| [Ejecutables](Queries/FND/executables.sql) | Consulta independiente de ejecutables, traducciones y método de ejecución. |
+| [Programas concurrentes, ejecutables y parámetros](Queries/FND/cp_and_executable.sql) | Dos consultas: el concurrente con su ejecutable y los parámetros definidos para ese concurrente. |
 
 ### Estructura actual
 
@@ -36,7 +37,8 @@ ORACLE_EBS_TECHNICAL/
 ├── README.md
 └── Queries/
     └── FND/
-        └── cp_and_executable.sql
+        ├── cp_and_executable.sql
+        └── executables.sql
 ```
 
 ## Cómo utilizar los recursos
@@ -46,7 +48,37 @@ ORACLE_EBS_TECHNICAL/
 3. Configura los parámetros según la herramienta de ejecución utilizada.
 4. Valida el comportamiento y los resultados en un entorno de desarrollo o pruebas antes de utilizarlo en producción.
 
-Para la consulta actual se necesita acceso a los objetos FND referenciados. Si se ejecuta con SQL*Plus, las variables bind deben declararse aunque se utilice `NULL` para omitir un filtro.
+Los scripts utilizan nombres de tablas base y uniones explícitas con las tablas de traducciones `_TL`, sin vistas funcionales `_VL` ni valores obtenidos de `USERENV` o `FND_GLOBAL`. En R12.2, los sinónimos estándar de APPS pueden resolver internamente a vistas de edición; se mantiene ese mecanismo de EBS, que no selecciona el idioma por sesión.
+
+**Parámetros obligatorios:** `p_language` (código de idioma instalado en EBS, por ejemplo `US`) y `p_security_group_id` (grupo de seguridad del lookup; habitualmente `0`, a verificar en el entorno). No se toman valores de la sesión. El grupo de seguridad solo interviene en la consulta del método de ejecución.
+
+**Filtros opcionales:** se puede introducir `NULL` para omitirlos. `p_application_id` corresponde a la aplicación del ejecutable en `executables.sql`, y a la del programa concurrente en `cp_and_executable.sql`. Los demás filtros están documentados en la cabecera de cada archivo. Los nombres se comparan por igualdad exacta.
+
+Se necesita acceso a los objetos FND referenciados. En SQL*Plus deben declararse todas las variables bind, incluso las de filtros opcionales. Ejemplo para consultar concurrentes en inglés y el grupo de seguridad estándar:
+
+```sql
+VARIABLE p_language VARCHAR2(4)
+VARIABLE p_security_group_id NUMBER
+VARIABLE p_application_id NUMBER
+VARIABLE p_concurrent_program_name VARCHAR2(30)
+VARIABLE p_user_concurrent_program_name VARCHAR2(240)
+VARIABLE p_concurrent_program_id NUMBER
+
+EXEC :p_language := 'US';
+EXEC :p_security_group_id := 0;
+EXEC :p_application_id := NULL;
+EXEC :p_concurrent_program_name := NULL;
+EXEC :p_user_concurrent_program_name := NULL;
+EXEC :p_concurrent_program_id := NULL;
+
+@Queries/FND/cp_and_executable.sql
+```
+
+Reemplaza los valores según tu búsqueda; con todos los filtros opcionales en `NULL` se consultan todos los programas del idioma seleccionado. Para `executables.sql`, declara `p_language`, `p_security_group_id`, `p_application_id`, `p_executable_id` (NUMBER), `p_executable_name` (VARCHAR2(30)) y `p_user_executable_name` (VARCHAR2(240)).
+
+En el archivo de concurrentes, `/` ejecuta la primera consulta y separa la segunda. La primera no lleva `;` antes del slash para evitar ejecutarla dos veces en SQL*Plus. Ejecuta el archivo en modo script para obtener ambos resultados.
+
+La segunda consulta utiliza los mismos filtros de programa e idioma y devuelve sus definiciones de parámetros, incluidos los deshabilitados. Los programas sin parámetros no generan filas en ese segundo resultado. Las consultas requieren validación de ejecución en una instancia EBS.
 
 ## Evolución y contribuciones
 
