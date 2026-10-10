@@ -27,6 +27,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [GL: contabilidad general](Queries/GL/README.md) | Detalle de asientos, análisis de cuenta, configuración e interfaz de importación. |
 | [FND: componentes del sistema](Queries/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
 | [Servidor de aplicaciones](Application_Server/README.md) | Árbol de directorios, archivos por idioma y diferencias entre R12.1 y R12.2. |
 | [Ejecutables](Queries/FND/executables.sql) | Consulta independiente de ejecutables, traducciones y método de ejecución. |
@@ -40,13 +41,21 @@ ORACLE_EBS_TECHNICAL/
 ├── Application_Server/
 │   └── README.md
 └── Queries/
-    └── FND/
+    ├── FND/
+    │   ├── README.md
+    │   ├── cp_and_executable.sql
+    │   └── executables.sql
+    └── GL/
         ├── README.md
-        ├── cp_and_executable.sql
-        └── executables.sql
+        ├── asientos_detalle.sql
+        ├── analisis_cuenta.sql
+        ├── configuracion_gl.sql
+        └── carga_gl_interface.sql
 ```
 
 ## Cómo utilizar los recursos
+
+Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros, conciliación y plantilla de carga](Queries/GL/README.md).
 
 1. Selecciona el recurso y revisa su descripción, parámetros y requisitos.
 2. Comprueba que los objetos y permisos necesarios estén disponibles en tu entorno de Oracle EBS.
