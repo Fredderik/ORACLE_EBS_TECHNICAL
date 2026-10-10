@@ -6,12 +6,12 @@ Consultas y ejemplos técnicos de contabilidad general para Oracle EBS R12 en ad
 
 | Archivo | Resultados |
 | --- | --- |
-| [asientos_detalle.sql](asientos_detalle.sql) | Lote, cabecera, líneas, importes, origen, categoría y combinación contable con `SEGMENT1` a `SEGMENT30`. |
+| [asientos_detalle.sql](asientos_detalle.sql) | Lote, cabecera, líneas, importes, origen, categoría y combinación contable en `CONCATENATED_SEGMENTS`, usando `GL_CODE_COMBINATIONS_KFV` (versión 1.2). |
 | [analisis_cuenta.sql](analisis_cuenta.sql) | Detalle contabilizado de una cuenta natural y comparación con `GL_BALANCES`. |
 | [configuracion_gl.sql](configuracion_gl.sql) | Libros, períodos abiertos y significado/configuración de segmentos. |
 | [carga_gl_interface.sql](carga_gl_interface.sql) | Plantilla PL/SQL de carga de dos líneas y pasos de importación estándar. **Contiene INSERT; ejecutar por separado.** |
 
-Se consultan tablas base y traducciones `_TL` mediante idioma explícito; no vistas `_VL` ni contexto de sesión. En R12.2 se conservan los sinónimos y las vistas de edición internas de EBS.
+Se consultan tablas base y traducciones `_TL` mediante idioma explícito. En `asientos_detalle.sql` se usa `GL_CODE_COMBINATIONS_KFV` para obtener la cuenta concatenada. No se utilizan vistas `_VL` para seleccionar el idioma. En R12.2 se conservan los sinónimos y las vistas de edición internas de EBS.
 
 ## Orden de uso
 

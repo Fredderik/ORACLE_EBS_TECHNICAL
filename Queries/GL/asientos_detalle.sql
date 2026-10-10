@@ -3,7 +3,7 @@
 ║  Archivo        : asientos_detalle.sql                                        ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 09/10/2026                                                  ║
-║  Versión        : 1.1                                                         ║
+║  Versión        : 1.2                                                         ║
 ║  Descripción    : Lote, asiento, líneas y combinación contable.               ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -19,16 +19,17 @@
 ║      * p_je_source (VARCHAR2; código interno)                                 ║
 ║      * p_je_category (VARCHAR2; código interno)                               ║
 ║                                                                               ║
-║  Notas          : Oracle EBS R12 en adelante; nombres de tablas base.         ║
+║  Notas          : Oracle EBS R12 en adelante; combinación mediante vista KFV. ║
 ║                   Uniones por igualdad en WHERE; externas con (+).            ║
 ║                   Sin valores predeterminados del contexto de sesión.         ║
 ║                   Pendiente validación de ejecución en Oracle EBS.            ║
-║                   Una fila por línea de asiento; valores de los 30 segmentos. ║
+║                   Una fila por línea; cuenta en CONCATENATED_SEGMENTS.        ║
 ║                   Consultar el significado en configuracion_gl.sql.           ║
 ║                                                                               ║
 ║  Actualizaciones:                                                             ║
 ║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
 ║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.               ║
+║    10/10/2026: Versión 1.2. Cuenta concatenada mediante vista KFV.            ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -66,45 +67,16 @@ SELECT
     nvl(gjl.accounted_dr, 0) - nvl(gjl.accounted_cr, 0) accounted_net,
     gcc.chart_of_accounts_id,
     gcc.description combination_description,
-    gcc.account_type,
+    gcc.gl_account_type account_type,
     gcc.enabled_flag combination_enabled,
     gcc.summary_flag,
-    gcc.detail_posting_allowed_flag,
-    gcc.segment1,
-    gcc.segment2,
-    gcc.segment3,
-    gcc.segment4,
-    gcc.segment5,
-    gcc.segment6,
-    gcc.segment7,
-    gcc.segment8,
-    gcc.segment9,
-    gcc.segment10,
-    gcc.segment11,
-    gcc.segment12,
-    gcc.segment13,
-    gcc.segment14,
-    gcc.segment15,
-    gcc.segment16,
-    gcc.segment17,
-    gcc.segment18,
-    gcc.segment19,
-    gcc.segment20,
-    gcc.segment21,
-    gcc.segment22,
-    gcc.segment23,
-    gcc.segment24,
-    gcc.segment25,
-    gcc.segment26,
-    gcc.segment27,
-    gcc.segment28,
-    gcc.segment29,
-    gcc.segment30
+    gcc.detail_posting_allowed detail_posting_allowed_flag,
+    gcc.concatenated_segments
 FROM gl_je_batches gjb,
      gl_je_headers gjh,
      gl_je_lines gjl,
      gl_ledgers gl,
-     gl_code_combinations gcc,
+     gl_code_combinations_kfv gcc,
      gl_je_sources_tl gst,
      gl_je_categories_tl gct
 WHERE gjh.je_batch_id = gjb.je_batch_id
