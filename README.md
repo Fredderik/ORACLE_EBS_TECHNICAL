@@ -27,6 +27,8 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [FND: componentes del sistema](Queries/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
+| [Servidor de aplicaciones](Application_Server/README.md) | Árbol de directorios, archivos por idioma y diferencias entre R12.1 y R12.2. |
 | [Ejecutables](Queries/FND/executables.sql) | Consulta independiente de ejecutables, traducciones y método de ejecución. |
 | [Programas concurrentes, ejecutables y parámetros](Queries/FND/cp_and_executable.sql) | Dos consultas: el concurrente con su ejecutable y los parámetros definidos para ese concurrente. |
 
@@ -35,8 +37,11 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 ```text
 ORACLE_EBS_TECHNICAL/
 ├── README.md
+├── Application_Server/
+│   └── README.md
 └── Queries/
     └── FND/
+        ├── README.md
         ├── cp_and_executable.sql
         └── executables.sql
 ```
