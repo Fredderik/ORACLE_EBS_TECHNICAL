@@ -43,6 +43,7 @@ ORACLE_EBS_TECHNICAL/
 └── Queries/
     ├── FND/
     │   ├── README.md
+    │   ├── analisis_solicitud.sql
     │   ├── cp_and_executable.sql
     │   └── executables.sql
     └── GL/

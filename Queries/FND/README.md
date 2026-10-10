@@ -16,10 +16,37 @@ Las consultas sobre facturas, pedidos o asientos contables se organizarán por s
 | --- | --- |
 | [executables.sql](executables.sql) | Ejecutables registrados, traducciones y método de ejecución. |
 | [cp_and_executable.sql](cp_and_executable.sql) | Dos resultados: programas concurrentes con su ejecutable; parámetros definidos para esos programas. |
+| [analisis_solicitud.sql](analisis_solicitud.sql) | Análisis de una solicitud: programa, fuente, responsabilidad, usuario y duración. |
+
+### Analizar una ejecución concurrente
+
+[analisis_solicitud.sql](analisis_solicitud.sql) consulta una solicitud por `p_request_id`. Muestra programa, ejecutable, fuente y subrutina registradas, método de ejecución, responsabilidad, usuario, fase, estado, fechas y archivos de registro y salida.
+
+Parámetros obligatorios: `p_request_id` (número de solicitud), `p_language` (código EBS, por ejemplo `US`) y `p_security_group_id` (grupo de los lookups, normalmente `0`). El grupo controla las descripciones de los lookups; no filtra ni autoriza el acceso a solicitudes.
+
+Ejemplo para SQL*Plus o ejecución como script en SQL Developer; sustituye los valores por los de tu entorno:
+
+```sql
+VARIABLE p_request_id NUMBER
+VARIABLE p_language VARCHAR2(4)
+VARIABLE p_security_group_id NUMBER
+EXEC :p_request_id := 123456;
+EXEC :p_language := 'US';
+EXEC :p_security_group_id := 0;
+@analisis_solicitud.sql
+```
+
+- `en_ejecucion_segundos/minutos`: tiempo desde el inicio real hasta la consulta, solo mientras la fase sea ejecución y no exista fecha de fin.
+- `duracion_total_segundos/minutos`: diferencia entre fin e inicio reales, también para ejecuciones terminadas con error.
+- Los tiempos excluyen la espera en cola, admiten duraciones superiores a 24 horas y son tiempo de reloj, no CPU. Sin inicio real devuelven `NULL`; mientras se ejecuta, el total también es `NULL`.
+- La fuente corresponde a la definición actual del ejecutable. No recupera el contenido ni la versión histórica del código utilizado.
+- Una traducción o metadato ausente no elimina la solicitud: se conservan sus identificadores y los campos faltantes quedan en `NULL`. Las descripciones traducidas siguen el idioma indicado.
+
+Referencia de estructura: [Oracle eTRM — FND_CONCURRENT_REQUESTS (copia archivada)](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnavbedf.html). Validación local de lógica con datos simulados; pendiente ejecución en una instancia Oracle EBS.
 
 ### Temas previstos
 
-Usuarios y responsabilidades, menús y funciones, perfiles, solicitudes concurrentes, lookups, flexfields y conjuntos de valores. Se incorporarán progresivamente; todavía no hay consultas para todos estos temas.
+Usuarios y responsabilidades, menús y funciones, perfiles, lookups, flexfields y conjuntos de valores. Se incorporarán progresivamente; todavía no hay consultas para todos estos temas.
 
 ## Criterios de las consultas
 
