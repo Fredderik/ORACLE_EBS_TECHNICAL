@@ -27,6 +27,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [ONT: gestión de pedidos (OM)](consultas/ONT/README.md) | Pedidos y líneas, despachos WSH, facturación AR y configuración. |
 | [XLA: contabilidad auxiliar](consultas/XLA/README.md) | Eventos, asientos, distribuciones de origen y trazabilidad hacia GL. |
 | [CE: gestión de efectivo](consultas/CE/README.md) | Cuentas bancarias, usos por organización, extractos e historial de conciliación. |
 | [PO: compras](consultas/PO/README.md) | Requisiciones, órdenes, trazabilidad, envíos, distribuciones y configuración. |
@@ -62,6 +63,12 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
 └── consultas/
+    ├── ONT/
+    │   ├── README.md
+    │   ├── pedidos.sql
+    │   ├── pedidos_despachos.sql
+    │   ├── pedidos_facturacion.sql
+    │   └── configuracion_ont.sql
     ├── XLA/
     │   ├── README.md
     │   ├── eventos_contables.sql
