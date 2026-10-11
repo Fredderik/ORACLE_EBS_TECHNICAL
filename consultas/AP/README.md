@@ -41,7 +41,7 @@ EXEC :p_vendor_id := 12345;
 EXEC :p_fecha_desde := NULL;
 EXEC :p_fecha_hasta := NULL;
 
-@Queries/AP/facturas.sql
+@consultas/AP/facturas.sql
 ```
 
 La cabecera aporta proveedor, sitio, monedas, importes, condiciones de pago, fechas, cuenta de pasivo e indicadores. Las líneas añaden cantidades, precios y referencias a compras/recepciones. Las distribuciones añaden cuenta contable, período, importes, indicadores de contabilización/reversión y referencias de proyecto.
@@ -65,7 +65,7 @@ EXEC :p_vendor_id := 12345;
 EXEC :p_vendor_num := NULL;
 EXEC :p_org_id := 204;
 
-@Queries/AP/proveedores_configuracion.sql
+@consultas/AP/proveedores_configuracion.sql
 ```
 
 | Resultado | Alcance |
@@ -107,7 +107,7 @@ EXEC :p_vendor_id := NULL;
 EXEC :p_fecha_desde := NULL;
 EXEC :p_fecha_hasta := NULL;
 
-@Queries/AP/pagos.sql
+@consultas/AP/pagos.sql
 ```
 
 `AP_CHECKS_ALL` comprende cheques, pagos electrónicos y reembolsos. `CHECK_NUMBER` no identifica de manera única un pago: utiliza `CHECK_ID` para uno concreto. Un rango de fechas invertido no devuelve filas.

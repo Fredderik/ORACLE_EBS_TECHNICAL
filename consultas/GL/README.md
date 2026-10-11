@@ -83,7 +83,7 @@ EXEC :p_account_value := '04100';
 EXEC :p_code_combination_id := NULL;
 EXEC :p_tolerance := 0.01;
 
-@Queries/GL/analisis_cuenta.sql
+@consultas/GL/analisis_cuenta.sql
 ```
 
 Para configuración, declara `p_language VARCHAR2(4)` y `p_ledger_id NUMBER`. Para detalle añade los binds indicados en su cabecera: los identificadores son NUMBER; estado, origen y categoría son VARCHAR2.

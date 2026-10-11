@@ -1,6 +1,6 @@
 # Interfaces — Oracle EBS R12
 
-Scripts de carga e integración organizados por aplicación. Esta carpeta está al mismo nivel que `Queries`: las consultas de lectura permanecen allí y los ejemplos de carga se documentan aquí.
+Scripts de carga e integración organizados por aplicación. Esta carpeta está al mismo nivel que `consultas`: las consultas de lectura permanecen allí y los ejemplos de carga se documentan aquí.
 
 | Aplicación | Contenido |
 | --- | --- |

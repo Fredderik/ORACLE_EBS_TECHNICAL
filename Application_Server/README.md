@@ -4,6 +4,10 @@ Esta sección documenta el sistema de archivos del servidor de aplicaciones desd
 
 Los árboles son esquemas orientativos para UNIX/Linux, no un inventario de una instalación concreta. Las rutas dependen de la configuración y del nodo.
 
+## Programas Host en bin
+
+[Shell básico y guía de despliegue](bin/README.md): log, variables, condicionales, bucle, SQL, Java y SFTP; permisos, formato UNIX y enlace a fndcpesr.
+
 ## Migración de componentes
 
 Consulta [FNDLOAD y XDOLoader](fndload/README.md) para descargar y subir concurrentes, listas de valores, metadatos de XML Publisher, plantillas RTF y otros componentes.
@@ -118,7 +122,7 @@ Estas precisiones proceden de la [tabla 2-1 y Language Files](https://docs.oracl
 
 ## Relación con las consultas FND
 
-Las [consultas de FND](../Queries/FND/README.md) permiten identificar la aplicación del ejecutable, su nombre y método. Esos datos orientan la búsqueda del componente físico. La ruta depende del método: no todos los ejecutables registrados representan un archivo en `bin`.
+Las [consultas de FND](../consultas/FND/README.md) permiten identificar la aplicación del ejecutable, su nombre y método. Esos datos orientan la búsqueda del componente físico. La ruta depende del método: no todos los ejecutables registrados representan un archivo en `bin`.
 
 Este README describe ubicaciones; no instala ni despliega componentes.
 

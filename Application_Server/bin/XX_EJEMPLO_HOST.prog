@@ -1,0 +1,158 @@
+#!/bin/bash
+# ╔═══════════════════════════════════════════════════════════════════════════════╗
+# ║ Archivo        : XX_EJEMPLO_HOST.prog                                        ║
+# ║ Autor          : Freddy E. Aparicio M.                                       ║
+# ║ Fecha creación : 10/10/2026                                                  ║
+# ║ Versión        : 1.0                                                         ║
+# ║ Descripción    : Ejemplo Host: log, variables, SQL, Java y SFTP.              ║
+# ║ Parámetros EBS : $1 conexión, $2 usuario ID, $3 usuario, $4 solicitud.        ║
+# ║                 $5 modo SIMULAR (predeterminado) o REAL.                     ║
+# ║ Uso local      : ./XX_EJEMPLO_HOST.prog --local [SIMULAR|REAL]                ║
+# ║ Notas          : Bash, UTF-8 sin BOM, finales de línea UNIX (LF).            ║
+# ║ Historial      : 10/10/2026 — versión 1.0, creación.                         ║
+# ╚═══════════════════════════════════════════════════════════════════════════════╝
+
+# No activar set -x: los parámetros Host pueden incluir credenciales.
+set +x
+set -u
+set -o pipefail
+umask 077
+
+registrar() {
+    printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
+}
+
+fallar() {
+    registrar "ERROR: $*" >&2
+    exit 1
+}
+
+# El Concurrent Manager recoge stdout/stderr en el log del proceso Host.
+# Para ejecución local, el README muestra la redirección a un archivo.
+if [ "${1:-}" = "--local" ]; then
+    shift
+    [ "$#" -le 1 ] || fallar "Uso: --local [SIMULAR|REAL]"
+    solicitud_id="LOCAL"
+    usuario_id="LOCAL"
+else
+    [ "$#" -ge 4 ] && [ "$#" -le 5 ] ||
+        fallar "Se requieren cuatro argumentos Host y un modo opcional."
+    # $1 es la conexión de EBS. No imprimirla ni reutilizarla en este ejemplo.
+    usuario_id="$2"
+    solicitud_id="$4"
+    shift 4
+    case "$solicitud_id" in
+        ''|*[!0-9]*) fallar "El ID de solicitud debe ser numérico." ;;
+    esac
+    case "$usuario_id" in
+        ''|*[!0-9]*) fallar "El ID de usuario debe ser numérico." ;;
+    esac
+fi
+
+modo="${1:-SIMULAR}"
+case "$modo" in
+    SIMULAR|REAL) ;;
+    *) fallar "Modo inválido. Usa SIMULAR o REAL." ;;
+esac
+
+registrar "Inicio. Solicitud=$solicitud_id; usuario ID=$usuario_id; modo=$modo"
+
+# Asignación de variables y bucle básico.
+total_pasos=0
+for paso in SQL JAVA SFTP; do
+    total_pasos=$((total_pasos + 1))
+    registrar "Paso previsto $total_pasos: $paso"
+done
+
+# Condicional: la simulación no requiere Oracle, Java, SSH ni archivos temporales.
+if [ "$modo" = "SIMULAR" ]; then
+    registrar "SIMULACIÓN: se consultaría la fecha de la base de datos."
+    registrar "SIMULACIÓN: se ejecutaría la clase EjemploBasico."
+    registrar "SIMULACIÓN: se enviaría un archivo de texto ficticio por SFTP."
+    registrar "Fin de simulación. No se ejecutaron integraciones."
+    exit 0
+fi
+
+# Variables del entorno, configuradas para la cuenta del servicio.
+# SQL usa autenticación por wallet; no se almacena contraseña en el script.
+alias_sql="${EJEMPLO_SQL_ALIAS:-}"
+java_bin="${EJEMPLO_JAVA_BIN:-java}"
+java_cp="${EJEMPLO_JAVA_CP:-}"
+sftp_alias="${EJEMPLO_SFTP_ALIAS:-}"
+sftp_directorio="${EJEMPLO_SFTP_DIR:-}"
+
+case "$alias_sql" in
+    ''|*[!A-Za-z0-9_]*) fallar "EJEMPLO_SQL_ALIAS debe ser un alias Oracle simple." ;;
+esac
+case "$sftp_alias" in
+    ''|-*|*[!A-Za-z0-9_.-]*) fallar "EJEMPLO_SFTP_ALIAS debe ser un alias SSH simple." ;;
+esac
+# Restricción didáctica para evitar comandos o comodines dentro del lote SFTP.
+case "$sftp_directorio" in
+    /*) ;;
+    *) fallar "EJEMPLO_SFTP_DIR debe ser una ruta remota absoluta." ;;
+esac
+case "$sftp_directorio" in
+    *[!A-Za-z0-9_./-]*) fallar "La ruta SFTP solo admite letras, números, _, ., / y -." ;;
+esac
+[ -n "$java_cp" ] || fallar "Define EJEMPLO_JAVA_CP con el directorio de clases."
+for herramienta in sqlplus sftp mktemp; do
+    command -v "$herramienta" >/dev/null 2>&1 ||
+        fallar "No se encuentra la herramienta $herramienta."
+done
+command -v "$java_bin" >/dev/null 2>&1 || fallar "No se encuentra Java."
+
+# Directorio privado por ejecución; no se eliminan directorios recursivamente.
+trabajo=$(mktemp -d "${TMPDIR:-/tmp}/xx_host.XXXXXXXX") ||
+    fallar "No se pudo crear el directorio temporal."
+limpiar() {
+    rm -f -- "$trabajo/sql.log" "$trabajo/envio.txt"
+    rmdir -- "$trabajo" 2>/dev/null || :
+}
+trap limpiar EXIT
+trap 'fallar "Ejecución interrumpida."' HUP INT TERM
+
+registrar "Ejecutando consulta SQL de lectura."
+# /@alias obtiene las credenciales del wallet configurado en el cliente Oracle.
+sqlplus -s -L "/@$alias_sql" >"$trabajo/sql.log" 2>&1 <<'SQL'
+WHENEVER OSERROR EXIT FAILURE ROLLBACK
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK
+SET ECHO OFF VERIFY OFF FEEDBACK OFF HEADING OFF PAGESIZE 0
+SELECT 'Fecha de la base de datos: ' ||
+       TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+FROM dual;
+EXIT SUCCESS ROLLBACK
+SQL
+estado_sql=$?
+cat "$trabajo/sql.log"
+[ "$estado_sql" -eq 0 ] || fallar "SQL*Plus terminó con código $estado_sql."
+# WHENEVER SQLERROR no captura los errores propios de comandos SQL*Plus.
+if grep -Eq '^[[:space:]]*SP2-[0-9]+' "$trabajo/sql.log"; then
+    fallar "Se detectó un error de comando SQL*Plus."
+fi
+
+registrar "Ejecutando clase Java."
+"$java_bin" -cp "$java_cp" EjemploBasico "$solicitud_id"
+estado_java=$?
+[ "$estado_java" -eq 0 ] || fallar "Java terminó con código $estado_java."
+
+# Solo se envía un texto ficticio; no el log SQL ni credenciales de EBS.
+printf 'Ejemplo de transferencia. Solicitud: %s\n' "$solicitud_id" \
+    >"$trabajo/envio.txt" || fallar "No se pudo crear el archivo de ejemplo."
+archivo_remoto="ejemplo_${solicitud_id}_$(date '+%Y%m%d%H%M%S')_$$.txt"
+registrar "Ejecutando transferencia SFTP del archivo de ejemplo."
+# El subshell evita que una ruta local aparezca como comando del lote SFTP.
+(
+    cd "$trabajo" || exit 1
+    sftp -b - -oBatchMode=yes -oStrictHostKeyChecking=yes \
+        -oConnectTimeout=30 "$sftp_alias" <<SFTP
+cd "$sftp_directorio"
+put envio.txt "$archivo_remoto"
+bye
+SFTP
+)
+estado_sftp=$?
+[ "$estado_sftp" -eq 0 ] || fallar "SFTP terminó con código $estado_sftp."
+
+registrar "Fin correcto. Se completaron $total_pasos pasos."
+exit 0

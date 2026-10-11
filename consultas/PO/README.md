@@ -46,7 +46,7 @@ EXEC :p_type_lookup_code := 'STANDARD';
 EXEC :p_fecha_desde := NULL;
 EXEC :p_fecha_hasta := NULL;
 
-@Queries/PO/ordenes_compra.sql
+@consultas/PO/ordenes_compra.sql
 ```
 
 Las fechas se introducen como texto `YYYY-MM-DD`, incluyen ambos días y filtran `CREATION_DATE` de la cabecera. No filtran las fechas de envío, promesa o liberación. Los tres resultados usan los mismos filtros.
@@ -76,7 +76,7 @@ EXEC :p_vendor_id := NULL;
 EXEC :p_agent_id := NULL;
 EXEC :p_line_type_id := NULL;
 
-@Queries/PO/configuracion_compras.sql
+@consultas/PO/configuracion_compras.sql
 ```
 
 | Resultado | Alcance de los filtros |
@@ -130,8 +130,8 @@ EXEC :p_fecha_hasta := NULL;
 EXEC :p_po_header_id := NULL;
 EXEC :p_po_number := NULL;
 
-@Queries/PO/requisiciones.sql
-@Queries/PO/requisiciones_ordenes_compra.sql
+@consultas/PO/requisiciones.sql
+@consultas/PO/requisiciones_ordenes_compra.sql
 ```
 
 `p_tipo_requisicion` acepta `PURCHASE`, `INTERNAL` o `NULL` para no filtrar. Los parámetros `p_po_header_id` y `p_po_number` se usan únicamente en el segundo archivo. Para buscar desde una orden, deja los filtros de requisición opcionales en `NULL` e indica su `p_po_header_id`; conserva la OU de origen en `p_org_id`.

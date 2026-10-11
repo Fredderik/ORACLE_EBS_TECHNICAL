@@ -27,16 +27,17 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
-| [PO: compras](Queries/PO/README.md) | Requisiciones, órdenes, trazabilidad, envíos, distribuciones y configuración. |
-| [AR: cuentas por cobrar](Queries/AR/README.md) | Transacciones, líneas y distribuciones; clientes y configuración de cobro. |
-| [AP: cuentas por pagar](Queries/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
-| [GL: contabilidad general](Queries/GL/README.md) | Detalle de asientos, análisis de cuenta y configuración. |
-| [FND: componentes del sistema](Queries/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
+| [PO: compras](consultas/PO/README.md) | Requisiciones, órdenes, trazabilidad, envíos, distribuciones y configuración. |
+| [AR: cuentas por cobrar](consultas/AR/README.md) | Transacciones, líneas y distribuciones; clientes y configuración de cobro. |
+| [AP: cuentas por pagar](consultas/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
+| [GL: contabilidad general](consultas/GL/README.md) | Detalle de asientos, análisis de cuenta y configuración. |
+| [FND: componentes del sistema](consultas/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
 | [Interfaces](Interface/README.md) | Cargas e integraciones: plantilla GL_INTERFACE e importación de asientos. |
 | [FNDLOAD y XDOLoader](Application_Server/fndload/README.md) | Comandos de descarga y subida de componentes AOL y XML Publisher. |
+| [Shell básico Host](Application_Server/bin/README.md) | Log, variables, condicionales, bucle, SQL, Java y SFTP; despliegue en bin. |
 | [Servidor de aplicaciones](Application_Server/README.md) | Árbol de directorios, archivos por idioma y diferencias entre R12.1 y R12.2. |
-| [Ejecutables](Queries/FND/executables.sql) | Consulta independiente de ejecutables, traducciones y método de ejecución. |
-| [Programas concurrentes, ejecutables y parámetros](Queries/FND/cp_and_executable.sql) | Dos consultas: el concurrente con su ejecutable y los parámetros definidos para ese concurrente. |
+| [Ejecutables](consultas/FND/executables.sql) | Consulta independiente de ejecutables, traducciones y método de ejecución. |
+| [Programas concurrentes, ejecutables y parámetros](consultas/FND/cp_and_executable.sql) | Dos consultas: el concurrente con su ejecutable y los parámetros definidos para ese concurrente. |
 
 ### Estructura actual
 
@@ -45,16 +46,20 @@ ORACLE_EBS_TECHNICAL/
 ├── README.md
 ├── Application_Server/
 │   ├── README.md
-│   └── fndload/
+│   ├── fndload/
+│   │   ├── README.md
+│   │   ├── componentes_aol.md
+│   │   └── xml_publisher.md
+│   └── bin/
 │       ├── README.md
-│       ├── componentes_aol.md
-│       └── xml_publisher.md
+│       ├── XX_EJEMPLO_HOST.prog
+│       └── EjemploBasico.java
 ├── Interface/
 │   ├── README.md
 │   └── GL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
-└── Queries/
+└── consultas/
     ├── AP/
     │   ├── README.md
     │   ├── facturas.sql
@@ -92,7 +97,7 @@ ORACLE_EBS_TECHNICAL/
 
 ## Cómo utilizar los recursos
 
-Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros y conciliación](Queries/GL/README.md) y la [plantilla de carga](Interface/GL/README.md). Para AP, consulta los [parámetros y ejemplos de facturas y proveedores](Queries/AP/README.md). Para AR, consulta los [ejemplos de transacciones y configuración de clientes](Queries/AR/README.md). Para PO, consulta las [órdenes y configuración de compras](Queries/PO/README.md).
+Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros y conciliación](consultas/GL/README.md) y la [plantilla de carga](Interface/GL/README.md). Para AP, consulta los [parámetros y ejemplos de facturas y proveedores](consultas/AP/README.md). Para AR, consulta los [ejemplos de transacciones y configuración de clientes](consultas/AR/README.md). Para PO, consulta las [órdenes y configuración de compras](consultas/PO/README.md).
 
 1. Selecciona el recurso y revisa su descripción, parámetros y requisitos.
 2. Comprueba que los objetos y permisos necesarios estén disponibles en tu entorno de Oracle EBS.
@@ -122,7 +127,7 @@ EXEC :p_concurrent_program_name := NULL;
 EXEC :p_user_concurrent_program_name := NULL;
 EXEC :p_concurrent_program_id := NULL;
 
-@Queries/FND/cp_and_executable.sql
+@consultas/FND/cp_and_executable.sql
 ```
 
 Reemplaza los valores según tu búsqueda; con todos los filtros opcionales en `NULL` se consultan todos los programas del idioma seleccionado. Para `executables.sql`, declara `p_language`, `p_security_group_id`, `p_application_id`, `p_executable_id` (NUMBER), `p_executable_name` (VARCHAR2(30)) y `p_user_executable_name` (VARCHAR2(240)).

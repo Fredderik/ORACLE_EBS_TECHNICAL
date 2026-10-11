@@ -1,0 +1,4 @@
+# Conservar finales de línea UNIX en los ejemplos del servidor.
+*.prog text eol=lf
+*.sh text eol=lf
+*.java text eol=lf

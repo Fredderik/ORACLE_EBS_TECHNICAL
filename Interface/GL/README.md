@@ -1,6 +1,6 @@
 # GL — interfaz de importación de asientos
 
-[carga_gl_interface.sql](carga_gl_interface.sql) contiene la plantilla PL/SQL y los pasos para lanzar la importación estándar. Se trasladó desde `Queries/GL` conservando íntegros el código, la cabecera, la autoría y la versión **1.1**.
+[carga_gl_interface.sql](carga_gl_interface.sql) contiene la plantilla PL/SQL y los pasos para lanzar la importación estándar. Se trasladó desde `consultas/GL` conservando íntegros el código, la cabecera, la autoría y la versión **1.1**.
 
 ## Plantilla de interfaz
 
@@ -19,7 +19,7 @@ Declara todos los parámetros enumerados en la cabecera antes de ejecutar el arc
 @Interface/GL/carga_gl_interface.sql
 ```
 
-Consulta primero [los libros, períodos y combinaciones de GL](../../Queries/GL/README.md). El archivo incluye INSERT y no debe ejecutarse como parte de una batería de consultas de lectura.
+Consulta primero [los libros, períodos y combinaciones de GL](../../consultas/GL/README.md). El archivo incluye INSERT y no debe ejecutarse como parte de una batería de consultas de lectura.
 
 ## Validación y referencias
 

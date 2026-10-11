@@ -42,7 +42,7 @@ EXEC :p_cust_account_id := 12345;
 EXEC :p_fecha_desde := NULL;
 EXEC :p_fecha_hasta := NULL;
 
-@Queries/AR/facturas.sql
+@consultas/AR/facturas.sql
 ```
 
 La cabecera incluye cuenta y nombre del cliente, sitios, moneda, condiciones de pago y referencias de transacción. `importe_total_lineas` suma los importes extendidos registrados; no representa saldo pendiente y devuelve `NULL` si no hay líneas.
@@ -68,7 +68,7 @@ EXEC :p_cust_account_id := 12345;
 EXEC :p_account_number := NULL;
 EXEC :p_org_id := 204;
 
-@Queries/AR/clientes_configuracion.sql
+@consultas/AR/clientes_configuracion.sql
 ```
 
 | Resultado | Nivel y alcance |
