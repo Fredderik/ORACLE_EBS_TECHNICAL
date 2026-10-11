@@ -27,6 +27,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [CE: gestión de efectivo](consultas/CE/README.md) | Cuentas bancarias, usos por organización, extractos e historial de conciliación. |
 | [PO: compras](consultas/PO/README.md) | Requisiciones, órdenes, trazabilidad, envíos, distribuciones y configuración. |
 | [AR: cuentas por cobrar](consultas/AR/README.md) | Transacciones, líneas y distribuciones; clientes y configuración de cobro. |
 | [AP: cuentas por pagar](consultas/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
@@ -60,6 +61,11 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
 └── consultas/
+    ├── CE/
+    │   ├── README.md
+    │   ├── cuentas_bancarias.sql
+    │   ├── extractos_bancarios.sql
+    │   └── conciliacion_bancaria.sql
     ├── AP/
     │   ├── README.md
     │   ├── facturas.sql
