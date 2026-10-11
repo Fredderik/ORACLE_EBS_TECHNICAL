@@ -27,6 +27,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [QP: listas de precios](consultas/QP/README.md) | Cabeceras, líneas, atributos de producto/precio y calificadores. |
 | [INV: inventario](consultas/INV/README.md) | Artículos, existencias, movimientos con lotes y configuración de almacenes. |
 | [ONT: gestión de pedidos (OM)](consultas/ONT/README.md) | Pedidos y líneas, despachos WSH, facturación AR y configuración. |
 | [XLA: contabilidad auxiliar](consultas/XLA/README.md) | Eventos, asientos, distribuciones de origen y trazabilidad hacia GL. |
@@ -64,6 +65,11 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
 └── consultas/
+    ├── QP/
+    │   ├── README.md
+    │   ├── listas_precios.sql
+    │   ├── atributos_precios.sql
+    │   └── calificadores.sql
     ├── INV/
     │   ├── README.md
     │   ├── articulos.sql
