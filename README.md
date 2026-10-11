@@ -27,6 +27,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [INV: inventario](consultas/INV/README.md) | Artículos, existencias, movimientos con lotes y configuración de almacenes. |
 | [ONT: gestión de pedidos (OM)](consultas/ONT/README.md) | Pedidos y líneas, despachos WSH, facturación AR y configuración. |
 | [XLA: contabilidad auxiliar](consultas/XLA/README.md) | Eventos, asientos, distribuciones de origen y trazabilidad hacia GL. |
 | [CE: gestión de efectivo](consultas/CE/README.md) | Cuentas bancarias, usos por organización, extractos e historial de conciliación. |
@@ -63,6 +64,12 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
 └── consultas/
+    ├── INV/
+    │   ├── README.md
+    │   ├── articulos.sql
+    │   ├── existencias.sql
+    │   ├── movimientos.sql
+    │   └── configuracion_inv.sql
     ├── ONT/
     │   ├── README.md
     │   ├── pedidos.sql
