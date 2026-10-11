@@ -1,8 +1,12 @@
 # Servidor de aplicaciones — Oracle EBS R12
 
-Esta sección documenta el sistema de archivos del servidor de aplicaciones desde la perspectiva del desarrollador. Comienza con la ubicación de scripts, ejecutables y reportes; posteriormente podrá incluir despliegue y diagnóstico.
+Esta sección documenta el sistema de archivos del servidor de aplicaciones desde la perspectiva del desarrollador. Incluye la ubicación de scripts, ejecutables y reportes, además de comandos para migrar componentes.
 
 Los árboles son esquemas orientativos para UNIX/Linux, no un inventario de una instalación concreta. Las rutas dependen de la configuración y del nodo.
+
+## Migración de componentes
+
+Consulta [FNDLOAD y XDOLoader](fndload/README.md) para descargar y subir concurrentes, listas de valores, metadatos de XML Publisher, plantillas RTF y otros componentes.
 
 ## Ubicación de una aplicación
 

@@ -27,11 +27,13 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
-| [PO: compras](Queries/PO/README.md) | Órdenes, líneas, envíos, distribuciones y configuración de compras. |
+| [PO: compras](Queries/PO/README.md) | Requisiciones, órdenes, trazabilidad, envíos, distribuciones y configuración. |
 | [AR: cuentas por cobrar](Queries/AR/README.md) | Transacciones, líneas y distribuciones; clientes y configuración de cobro. |
 | [AP: cuentas por pagar](Queries/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
-| [GL: contabilidad general](Queries/GL/README.md) | Detalle de asientos, análisis de cuenta, configuración e interfaz de importación. |
+| [GL: contabilidad general](Queries/GL/README.md) | Detalle de asientos, análisis de cuenta y configuración. |
 | [FND: componentes del sistema](Queries/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
+| [Interfaces](Interface/README.md) | Cargas e integraciones: plantilla GL_INTERFACE e importación de asientos. |
+| [FNDLOAD y XDOLoader](Application_Server/fndload/README.md) | Comandos de descarga y subida de componentes AOL y XML Publisher. |
 | [Servidor de aplicaciones](Application_Server/README.md) | Árbol de directorios, archivos por idioma y diferencias entre R12.1 y R12.2. |
 | [Ejecutables](Queries/FND/executables.sql) | Consulta independiente de ejecutables, traducciones y método de ejecución. |
 | [Programas concurrentes, ejecutables y parámetros](Queries/FND/cp_and_executable.sql) | Dos consultas: el concurrente con su ejecutable y los parámetros definidos para ese concurrente. |
@@ -42,7 +44,16 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 ORACLE_EBS_TECHNICAL/
 ├── README.md
 ├── Application_Server/
-│   └── README.md
+│   ├── README.md
+│   └── fndload/
+│       ├── README.md
+│       ├── componentes_aol.md
+│       └── xml_publisher.md
+├── Interface/
+│   ├── README.md
+│   └── GL/
+│       ├── README.md
+│       └── carga_gl_interface.sql
 └── Queries/
     ├── AP/
     │   ├── README.md
@@ -56,6 +67,8 @@ ORACLE_EBS_TECHNICAL/
     ├── PO/
     │   ├── README.md
     │   ├── ordenes_compra.sql
+    │   ├── requisiciones.sql
+    │   ├── requisiciones_ordenes_compra.sql
     │   └── configuracion_compras.sql
     ├── FND/
     │   ├── README.md
@@ -66,8 +79,7 @@ ORACLE_EBS_TECHNICAL/
         ├── README.md
         ├── asientos_detalle.sql
         ├── analisis_cuenta.sql
-        ├── configuracion_gl.sql
-        └── carga_gl_interface.sql
+        └── configuracion_gl.sql
 ```
 
 ## Convenciones de los scripts
@@ -80,7 +92,7 @@ ORACLE_EBS_TECHNICAL/
 
 ## Cómo utilizar los recursos
 
-Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros, conciliación y plantilla de carga](Queries/GL/README.md). Para AP, consulta los [parámetros y ejemplos de facturas y proveedores](Queries/AP/README.md). Para AR, consulta los [ejemplos de transacciones y configuración de clientes](Queries/AR/README.md). Para PO, consulta las [órdenes y configuración de compras](Queries/PO/README.md).
+Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros y conciliación](Queries/GL/README.md) y la [plantilla de carga](Interface/GL/README.md). Para AP, consulta los [parámetros y ejemplos de facturas y proveedores](Queries/AP/README.md). Para AR, consulta los [ejemplos de transacciones y configuración de clientes](Queries/AR/README.md). Para PO, consulta las [órdenes y configuración de compras](Queries/PO/README.md).
 
 1. Selecciona el recurso y revisa su descripción, parámetros y requisitos.
 2. Comprueba que los objetos y permisos necesarios estén disponibles en tu entorno de Oracle EBS.

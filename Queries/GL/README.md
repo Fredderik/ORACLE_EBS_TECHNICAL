@@ -9,7 +9,6 @@ Consultas y ejemplos técnicos de contabilidad general para Oracle EBS R12 en ad
 | [asientos_detalle.sql](asientos_detalle.sql) | Lote, cabecera, líneas, importes, origen, categoría y combinación contable en `CONCATENATED_SEGMENTS`, usando `GL_CODE_COMBINATIONS_KFV` (versión 1.2). |
 | [analisis_cuenta.sql](analisis_cuenta.sql) | Detalle contabilizado de una cuenta natural y comparación con `GL_BALANCES`. |
 | [configuracion_gl.sql](configuracion_gl.sql) | Libros, períodos abiertos y significado/configuración de segmentos. |
-| [carga_gl_interface.sql](carga_gl_interface.sql) | Plantilla PL/SQL de carga de dos líneas y pasos de importación estándar. **Contiene INSERT; ejecutar por separado.** |
 
 Se consultan tablas base y traducciones `_TL` mediante idioma explícito. En `asientos_detalle.sql` se usa `GL_CODE_COMBINATIONS_KFV` para obtener la cuenta concatenada. No se utilizan vistas `_VL` para seleccionar el idioma. En R12.2 se conservan los sinónimos y las vistas de edición internas de EBS.
 
@@ -91,22 +90,15 @@ Para configuración, declara `p_language VARCHAR2(4)` y `p_ledger_id NUMBER`. Pa
 
 Ejecuta en modo script: `/` termina las consultas intermedias sin un `;` previo; la última termina con `;`.
 
-## Plantilla de interfaz
+## Interfaz de importación
 
-El alcance del ejemplo es intencionalmente concreto: dos CCID distintos, débito y crédito por el mismo importe, moneda del libro, período normal abierto y mismo valor de segmento de balanceo.
-
-La cabecera enumera todos los binds; las descripciones pueden ser NULL. La fecha se introduce como texto `YYYY-MM-DD`. El bloque deriva la moneda del libro y respeta la configuración **Import Using Key** para origen y categoría.
-
-Las comprobaciones previas no sustituyen la validación completa de Journal Import. El script contiene los pasos de lanzamiento desde la ventana estándar y deja el control de la transacción al operador. Una nueva ejecución después de importar puede duplicar el asiento: la comprobación de `GROUP_ID` solo detecta filas todavía presentes en la interfaz. No es un mecanismo de idempotencia.
+La plantilla de carga y sus instrucciones están en [Interface/GL](../../Interface/GL/README.md). Las consultas de lectura permanecen en esta carpeta.
 
 ## Validación y referencias
 
 Se verificaron filtros, uniones y conciliación con datos simulados. La revisión de sintaxis tradicional comparó los resultados anteriores y nuevos en 78 escenarios de las nueve consultas de lectura de FND y GL. Para estas pruebas se adaptó `(+)` al motor SQLite; esto no constituye validación nativa de Oracle.
 
-El bloque PL/SQL conserva su lógica; se tradujeron sus comentarios y mensajes. **No fue compilado ni ejecutado en Oracle**. Falta validación en una instancia EBS con su configuración y parches.
-
 - [Oracle EBS General Ledger User's Guide: Journal Import](https://docs.oracle.com/cd/E18727_01/doc.121/e13627/T312864T451269.htm).
 - [Oracle ETRM: GL_BALANCES (copia del esquema R12.2.2)](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnav40c0.html).
-- [Oracle ETRM: GL_INTERFACE (copia del esquema R12.2.2)](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnavfe53.html).
 
 [Volver al inicio](../../README.md)
