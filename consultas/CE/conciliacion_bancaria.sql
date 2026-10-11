@@ -3,7 +3,7 @@
 ║  Archivo        : conciliacion_bancaria.sql                                   ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 11/10/2026                                                  ║
-║  Versión        : 1.0                                                         ║
+║  Versión        : 1.1                                                         ║
 ║  Descripción    : Historial y referencias de conciliación.                    ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -19,6 +19,7 @@
 ║                   Estados originales; no requiere parámetro de idioma.        ║
 ║                   Pendiente ejecución nativa en Oracle EBS.                   ║
 ║  Actualizaciones: 11/10/2026 — versión 1.0, creación.                         ║
+║    11/10/2026: Versión 1.1. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -36,37 +37,37 @@
 -- STATEMENT: CE_STATEMENT_LINES.STATEMENT_LINE_ID.
 -- Se conservan otros tipos sin intentar asociarlos por ID a una tabla incorrecta.
 SELECT
-    h.bank_account_id, h.statement_header_id, h.statement_number,
-    h.statement_date, h.currency_code moneda_extracto,
-    l.statement_line_id, l.line_number,
-    l.trx_date, l.trx_type, l.bank_trx_number,
-    l.amount importe_linea, l.status estado_linea,
-    r.reference_type, r.reference_id, r.je_header_id,
-    r.org_id organizacion_referencia, r.legal_entity_id,
-    r.reference_status, r.status_flag, r.current_record_flag,
-    r.auto_reconciled_flag, r.amount importe_conciliacion,
-    r.creation_date fecha_registro, r.created_by,
-    r.last_update_date, r.last_updated_by, r.request_id
+    csh.bank_account_id, csh.statement_header_id, csh.statement_number,
+    csh.statement_date, csh.currency_code moneda_extracto,
+    csl.statement_line_id, csl.line_number,
+    csl.trx_date, csl.trx_type, csl.bank_trx_number,
+    csl.amount importe_linea, csl.status estado_linea,
+    csra.reference_type, csra.reference_id, csra.je_header_id,
+    csra.org_id organizacion_referencia, csra.legal_entity_id,
+    csra.reference_status, csra.status_flag, csra.current_record_flag,
+    csra.auto_reconciled_flag, csra.amount importe_conciliacion,
+    csra.creation_date fecha_registro, csra.created_by,
+    csra.last_update_date, csra.last_updated_by, csra.request_id
 FROM
-    ce_statement_headers h,
-    ce_statement_lines l,
-    ce_statement_reconcils_all r
+    ce_statement_headers csh,
+    ce_statement_lines csl,
+    ce_statement_reconcils_all csra
 WHERE
-    h.bank_account_id = :p_bank_account_id
+    csh.bank_account_id = :p_bank_account_id
     AND (:p_statement_header_id IS NULL
-         OR h.statement_header_id = :p_statement_header_id)
-    AND (:p_statement_number IS NULL OR h.statement_number = :p_statement_number)
+         OR csh.statement_header_id = :p_statement_header_id)
+    AND (:p_statement_number IS NULL OR csh.statement_number = :p_statement_number)
     AND (:p_fecha_desde IS NULL
-         OR h.statement_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR csh.statement_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.statement_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.statement_header_id = l.statement_header_id
-    AND l.statement_line_id = r.statement_line_id
-    AND (:p_statement_line_id IS NULL OR l.statement_line_id = :p_statement_line_id)
-    AND (:p_org_id IS NULL OR r.org_id = :p_org_id)
-    AND (:p_reference_type IS NULL OR r.reference_type = :p_reference_type)
+         OR csh.statement_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND csh.statement_header_id = csl.statement_header_id
+    AND csl.statement_line_id = csra.statement_line_id
+    AND (:p_statement_line_id IS NULL OR csl.statement_line_id = :p_statement_line_id)
+    AND (:p_org_id IS NULL OR csra.org_id = :p_org_id)
+    AND (:p_reference_type IS NULL OR csra.reference_type = :p_reference_type)
     AND (:p_current_record_flag IS NULL
-         OR r.current_record_flag = :p_current_record_flag)
-    AND (:p_status_flag IS NULL OR r.status_flag = :p_status_flag)
-ORDER BY h.statement_date, h.statement_header_id, l.line_number,
-         r.creation_date, r.reference_type, r.reference_id, r.je_header_id;
+         OR csra.current_record_flag = :p_current_record_flag)
+    AND (:p_status_flag IS NULL OR csra.status_flag = :p_status_flag)
+ORDER BY csh.statement_date, csh.statement_header_id, csl.line_number,
+         csra.creation_date, csra.reference_type, csra.reference_id, csra.je_header_id;

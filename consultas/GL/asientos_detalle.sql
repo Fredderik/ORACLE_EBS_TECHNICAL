@@ -3,7 +3,7 @@
 ║  Archivo        : asientos_detalle.sql                                        ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 09/10/2026                                                  ║
-║  Versión        : 1.2                                                         ║
+║  Versión        : 1.3                                                         ║
 ║  Descripción    : Lote, asiento, líneas y combinación contable.               ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -30,6 +30,7 @@
 ║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
 ║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.               ║
 ║    10/10/2026: Versión 1.2. Cuenta concatenada mediante vista KFV.            ║
+║    11/10/2026: Versión 1.3. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -49,9 +50,9 @@ SELECT
     gjh.period_name,
     gjh.posted_date,
     gjh.je_source source_code,
-    gst.user_je_source_name source_name,
+    gjst.user_je_source_name source_name,
     gjh.je_category category_code,
-    gct.user_je_category_name category_name,
+    gjct.user_je_category_name category_name,
     gjh.currency_code entered_currency,
     gjh.currency_conversion_type,
     gjh.currency_conversion_date,
@@ -65,34 +66,34 @@ SELECT
     nvl(gjl.accounted_dr, 0) accounted_dr,
     nvl(gjl.accounted_cr, 0) accounted_cr,
     nvl(gjl.accounted_dr, 0) - nvl(gjl.accounted_cr, 0) accounted_net,
-    gcc.chart_of_accounts_id,
-    gcc.description combination_description,
-    gcc.gl_account_type account_type,
-    gcc.enabled_flag combination_enabled,
-    gcc.summary_flag,
-    gcc.detail_posting_allowed detail_posting_allowed_flag,
-    gcc.concatenated_segments
+    gcck.chart_of_accounts_id,
+    gcck.description combination_description,
+    gcck.gl_account_type account_type,
+    gcck.enabled_flag combination_enabled,
+    gcck.summary_flag,
+    gcck.detail_posting_allowed detail_posting_allowed_flag,
+    gcck.concatenated_segments
 FROM gl_je_batches gjb,
      gl_je_headers gjh,
      gl_je_lines gjl,
      gl_ledgers gl,
-     gl_code_combinations_kfv gcc,
-     gl_je_sources_tl gst,
-     gl_je_categories_tl gct
+     gl_code_combinations_kfv gcck,
+     gl_je_sources_tl gjst,
+     gl_je_categories_tl gjct
 WHERE gjh.je_batch_id = gjb.je_batch_id
   AND gjl.je_header_id = gjh.je_header_id
   AND gl.ledger_id = gjh.ledger_id
-  AND gcc.code_combination_id = gjl.code_combination_id
-  AND gcc.chart_of_accounts_id = gl.chart_of_accounts_id
-  AND gst.je_source_name(+) = gjh.je_source
-  AND gst.language(+) = :p_language
-  AND gct.je_category_name(+) = gjh.je_category
-  AND gct.language(+) = :p_language
+  AND gcck.code_combination_id = gjl.code_combination_id
+  AND gcck.chart_of_accounts_id = gl.chart_of_accounts_id
+  AND gjst.je_source_name(+) = gjh.je_source
+  AND gjst.language(+) = :p_language
+  AND gjct.je_category_name(+) = gjh.je_category
+  AND gjct.language(+) = :p_language
   AND gl.ledger_id = :p_ledger_id
   AND gjh.period_name = :p_period_name
   AND (:p_je_batch_id IS NULL OR gjb.je_batch_id = :p_je_batch_id)
   AND (:p_je_header_id IS NULL OR gjh.je_header_id = :p_je_header_id)
-  AND (:p_code_combination_id IS NULL OR gcc.code_combination_id = :p_code_combination_id)
+  AND (:p_code_combination_id IS NULL OR gcck.code_combination_id = :p_code_combination_id)
   AND (:p_status IS NULL OR gjh.status = :p_status)
   AND (:p_je_source IS NULL OR gjh.je_source = :p_je_source)
   AND (:p_je_category IS NULL OR gjh.je_category = :p_je_category)

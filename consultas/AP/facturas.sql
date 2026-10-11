@@ -3,7 +3,7 @@
 ║  Archivo        : facturas.sql                                                ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 10/10/2026                                                  ║
-║  Versión        : 1.0                                                         ║
+║  Versión        : 1.1                                                         ║
 ║  Descripción    : Facturas: cabecera, líneas y distribuciones.                ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -19,6 +19,7 @@
 ║                                                                               ║
 ║  Actualizaciones:                                                             ║
 ║    10/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
+║    11/10/2026: Versión 1.1. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -32,210 +33,210 @@
 
 -- Consulta 1: Cabecera (una fila por factura).
 SELECT
-    h.org_id,
-    h.set_of_books_id,
-    h.invoice_id,
-    h.invoice_num,
-    h.invoice_type_lookup_code,
-    h.invoice_date,
-    h.gl_date,
-    h.vendor_id,
-    s.segment1 proveedor_numero,
-    s.vendor_name proveedor_nombre,
-    h.vendor_site_id,
-    ss.vendor_site_code sitio_proveedor,
-    h.invoice_currency_code,
-    h.payment_currency_code,
-    h.invoice_amount importe_factura,
-    h.base_amount importe_base_factura,
-    h.amount_paid importe_pagado,
-    h.payment_status_flag,
-    h.wfapproval_status,
-    h.cancelled_date,
-    h.source,
-    h.description descripcion_factura,
-    h.terms_id,
-    t.name condiciones_pago,
-    h.terms_date,
-    h.accts_pay_code_combination_id cuenta_pasivo_id
+    aia.org_id,
+    aia.set_of_books_id,
+    aia.invoice_id,
+    aia.invoice_num,
+    aia.invoice_type_lookup_code,
+    aia.invoice_date,
+    aia.gl_date,
+    aia.vendor_id,
+    aps.segment1 proveedor_numero,
+    aps.vendor_name proveedor_nombre,
+    aia.vendor_site_id,
+    assa.vendor_site_code sitio_proveedor,
+    aia.invoice_currency_code,
+    aia.payment_currency_code,
+    aia.invoice_amount importe_factura,
+    aia.base_amount importe_base_factura,
+    aia.amount_paid importe_pagado,
+    aia.payment_status_flag,
+    aia.wfapproval_status,
+    aia.cancelled_date,
+    aia.source,
+    aia.description descripcion_factura,
+    aia.terms_id,
+    att.name condiciones_pago,
+    aia.terms_date,
+    aia.accts_pay_code_combination_id cuenta_pasivo_id
 FROM
-    ap_invoices_all       h,
-    ap_suppliers          s,
-    ap_supplier_sites_all ss,
-    ap_terms_tl           t
+    ap_invoices_all       aia,
+    ap_suppliers          aps,
+    ap_supplier_sites_all assa,
+    ap_terms_tl           att
 WHERE
-        h.org_id = :p_org_id
-    AND (:p_invoice_id IS NULL OR h.invoice_id = :p_invoice_id)
-    AND (:p_invoice_num IS NULL OR h.invoice_num = :p_invoice_num)
-    AND (:p_vendor_id IS NULL OR h.vendor_id = :p_vendor_id)
+        aia.org_id = :p_org_id
+    AND (:p_invoice_id IS NULL OR aia.invoice_id = :p_invoice_id)
+    AND (:p_invoice_num IS NULL OR aia.invoice_num = :p_invoice_num)
+    AND (:p_vendor_id IS NULL OR aia.vendor_id = :p_vendor_id)
     AND (:p_fecha_desde IS NULL
-         OR h.invoice_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR aia.invoice_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.invoice_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.vendor_id = s.vendor_id(+)
-    AND h.vendor_site_id = ss.vendor_site_id(+)
-    AND h.vendor_id = ss.vendor_id(+)
-    AND h.org_id = ss.org_id(+)
-    AND h.terms_id = t.term_id(+)
-    AND t.language(+) = :p_language
-ORDER BY h.invoice_id
+         OR aia.invoice_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND aia.vendor_id = aps.vendor_id(+)
+    AND aia.vendor_site_id = assa.vendor_site_id(+)
+    AND aia.vendor_id = assa.vendor_id(+)
+    AND aia.org_id = assa.org_id(+)
+    AND aia.terms_id = att.term_id(+)
+    AND att.language(+) = :p_language
+ORDER BY aia.invoice_id
 /
 -- Consulta 2: Cabecera y líneas (una fila por línea, si existe).
 SELECT
-    h.org_id,
-    h.set_of_books_id,
-    h.invoice_id,
-    h.invoice_num,
-    h.invoice_type_lookup_code,
-    h.invoice_date,
-    h.gl_date,
-    h.vendor_id,
-    s.segment1 proveedor_numero,
-    s.vendor_name proveedor_nombre,
-    h.vendor_site_id,
-    ss.vendor_site_code sitio_proveedor,
-    h.invoice_currency_code,
-    h.payment_currency_code,
-    h.invoice_amount importe_factura,
-    h.base_amount importe_base_factura,
-    h.amount_paid importe_pagado,
-    h.payment_status_flag,
-    h.wfapproval_status,
-    h.cancelled_date,
-    h.source,
-    h.description descripcion_factura,
-    h.terms_id,
-    t.name condiciones_pago,
-    h.terms_date,
-    h.accts_pay_code_combination_id cuenta_pasivo_id,
-    l.line_number numero_linea,
-    l.line_type_lookup_code tipo_linea,
-    l.description descripcion_linea,
-    l.amount importe_linea,
-    l.base_amount importe_base_linea,
-    l.accounting_date fecha_contable_linea,
-    l.quantity_invoiced,
-    l.unit_price,
-    l.unit_meas_lookup_code,
-    l.discarded_flag,
-    l.cancelled_flag,
-    l.po_header_id,
-    l.po_line_id,
-    l.po_line_location_id,
-    l.po_distribution_id,
-    l.rcv_transaction_id
+    aia.org_id,
+    aia.set_of_books_id,
+    aia.invoice_id,
+    aia.invoice_num,
+    aia.invoice_type_lookup_code,
+    aia.invoice_date,
+    aia.gl_date,
+    aia.vendor_id,
+    aps.segment1 proveedor_numero,
+    aps.vendor_name proveedor_nombre,
+    aia.vendor_site_id,
+    assa.vendor_site_code sitio_proveedor,
+    aia.invoice_currency_code,
+    aia.payment_currency_code,
+    aia.invoice_amount importe_factura,
+    aia.base_amount importe_base_factura,
+    aia.amount_paid importe_pagado,
+    aia.payment_status_flag,
+    aia.wfapproval_status,
+    aia.cancelled_date,
+    aia.source,
+    aia.description descripcion_factura,
+    aia.terms_id,
+    att.name condiciones_pago,
+    aia.terms_date,
+    aia.accts_pay_code_combination_id cuenta_pasivo_id,
+    aila.line_number numero_linea,
+    aila.line_type_lookup_code tipo_linea,
+    aila.description descripcion_linea,
+    aila.amount importe_linea,
+    aila.base_amount importe_base_linea,
+    aila.accounting_date fecha_contable_linea,
+    aila.quantity_invoiced,
+    aila.unit_price,
+    aila.unit_meas_lookup_code,
+    aila.discarded_flag,
+    aila.cancelled_flag,
+    aila.po_header_id,
+    aila.po_line_id,
+    aila.po_line_location_id,
+    aila.po_distribution_id,
+    aila.rcv_transaction_id
 FROM
-    ap_invoices_all       h,
-    ap_suppliers          s,
-    ap_supplier_sites_all ss,
-    ap_terms_tl           t,
-    ap_invoice_lines_all l
+    ap_invoices_all       aia,
+    ap_suppliers          aps,
+    ap_supplier_sites_all assa,
+    ap_terms_tl           att,
+    ap_invoice_lines_all aila
 WHERE
-        h.org_id = :p_org_id
-    AND (:p_invoice_id IS NULL OR h.invoice_id = :p_invoice_id)
-    AND (:p_invoice_num IS NULL OR h.invoice_num = :p_invoice_num)
-    AND (:p_vendor_id IS NULL OR h.vendor_id = :p_vendor_id)
+        aia.org_id = :p_org_id
+    AND (:p_invoice_id IS NULL OR aia.invoice_id = :p_invoice_id)
+    AND (:p_invoice_num IS NULL OR aia.invoice_num = :p_invoice_num)
+    AND (:p_vendor_id IS NULL OR aia.vendor_id = :p_vendor_id)
     AND (:p_fecha_desde IS NULL
-         OR h.invoice_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR aia.invoice_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.invoice_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.vendor_id = s.vendor_id(+)
-    AND h.vendor_site_id = ss.vendor_site_id(+)
-    AND h.vendor_id = ss.vendor_id(+)
-    AND h.org_id = ss.org_id(+)
-    AND h.terms_id = t.term_id(+)
-    AND t.language(+) = :p_language
-    AND h.invoice_id = l.invoice_id(+)
-    AND h.org_id = l.org_id(+)
-ORDER BY h.invoice_id, l.line_number
+         OR aia.invoice_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND aia.vendor_id = aps.vendor_id(+)
+    AND aia.vendor_site_id = assa.vendor_site_id(+)
+    AND aia.vendor_id = assa.vendor_id(+)
+    AND aia.org_id = assa.org_id(+)
+    AND aia.terms_id = att.term_id(+)
+    AND att.language(+) = :p_language
+    AND aia.invoice_id = aila.invoice_id(+)
+    AND aia.org_id = aila.org_id(+)
+ORDER BY aia.invoice_id, aila.line_number
 /
 -- Consulta 3: Cabecera, líneas y distribuciones (una fila por distribución, si existe).
 SELECT
-    h.org_id,
-    h.set_of_books_id,
-    h.invoice_id,
-    h.invoice_num,
-    h.invoice_type_lookup_code,
-    h.invoice_date,
-    h.gl_date,
-    h.vendor_id,
-    s.segment1 proveedor_numero,
-    s.vendor_name proveedor_nombre,
-    h.vendor_site_id,
-    ss.vendor_site_code sitio_proveedor,
-    h.invoice_currency_code,
-    h.payment_currency_code,
-    h.invoice_amount importe_factura,
-    h.base_amount importe_base_factura,
-    h.amount_paid importe_pagado,
-    h.payment_status_flag,
-    h.wfapproval_status,
-    h.cancelled_date,
-    h.source,
-    h.description descripcion_factura,
-    h.terms_id,
-    t.name condiciones_pago,
-    h.terms_date,
-    h.accts_pay_code_combination_id cuenta_pasivo_id,
-    l.line_number numero_linea,
-    l.line_type_lookup_code tipo_linea,
-    l.description descripcion_linea,
-    l.amount importe_linea,
-    l.base_amount importe_base_linea,
-    l.accounting_date fecha_contable_linea,
-    l.quantity_invoiced,
-    l.unit_price,
-    l.unit_meas_lookup_code,
-    l.discarded_flag,
-    l.cancelled_flag,
-    l.po_header_id,
-    l.po_line_id,
-    l.po_line_location_id,
-    l.po_distribution_id,
-    l.rcv_transaction_id,
-    d.invoice_distribution_id,
-    d.distribution_line_number numero_distribucion,
-    d.line_type_lookup_code tipo_distribucion,
-    d.description descripcion_distribucion,
-    d.amount importe_distribucion,
-    d.base_amount importe_base_distribucion,
-    d.accounting_date fecha_contable_distribucion,
-    d.period_name,
-    d.dist_code_combination_id cuenta_distribucion_id,
-    d.posted_flag,
-    d.match_status_flag,
-    d.reversal_flag,
-    d.parent_reversal_id,
-    d.po_distribution_id oc_distribucion_id,
-    d.project_id,
-    d.task_id,
-    d.expenditure_type
+    aia.org_id,
+    aia.set_of_books_id,
+    aia.invoice_id,
+    aia.invoice_num,
+    aia.invoice_type_lookup_code,
+    aia.invoice_date,
+    aia.gl_date,
+    aia.vendor_id,
+    aps.segment1 proveedor_numero,
+    aps.vendor_name proveedor_nombre,
+    aia.vendor_site_id,
+    assa.vendor_site_code sitio_proveedor,
+    aia.invoice_currency_code,
+    aia.payment_currency_code,
+    aia.invoice_amount importe_factura,
+    aia.base_amount importe_base_factura,
+    aia.amount_paid importe_pagado,
+    aia.payment_status_flag,
+    aia.wfapproval_status,
+    aia.cancelled_date,
+    aia.source,
+    aia.description descripcion_factura,
+    aia.terms_id,
+    att.name condiciones_pago,
+    aia.terms_date,
+    aia.accts_pay_code_combination_id cuenta_pasivo_id,
+    aila.line_number numero_linea,
+    aila.line_type_lookup_code tipo_linea,
+    aila.description descripcion_linea,
+    aila.amount importe_linea,
+    aila.base_amount importe_base_linea,
+    aila.accounting_date fecha_contable_linea,
+    aila.quantity_invoiced,
+    aila.unit_price,
+    aila.unit_meas_lookup_code,
+    aila.discarded_flag,
+    aila.cancelled_flag,
+    aila.po_header_id,
+    aila.po_line_id,
+    aila.po_line_location_id,
+    aila.po_distribution_id,
+    aila.rcv_transaction_id,
+    aida.invoice_distribution_id,
+    aida.distribution_line_number numero_distribucion,
+    aida.line_type_lookup_code tipo_distribucion,
+    aida.description descripcion_distribucion,
+    aida.amount importe_distribucion,
+    aida.base_amount importe_base_distribucion,
+    aida.accounting_date fecha_contable_distribucion,
+    aida.period_name,
+    aida.dist_code_combination_id cuenta_distribucion_id,
+    aida.posted_flag,
+    aida.match_status_flag,
+    aida.reversal_flag,
+    aida.parent_reversal_id,
+    aida.po_distribution_id oc_distribucion_id,
+    aida.project_id,
+    aida.task_id,
+    aida.expenditure_type
 FROM
-    ap_invoices_all       h,
-    ap_suppliers          s,
-    ap_supplier_sites_all ss,
-    ap_terms_tl           t,
-    ap_invoice_lines_all l,
-    ap_invoice_distributions_all d
+    ap_invoices_all       aia,
+    ap_suppliers          aps,
+    ap_supplier_sites_all assa,
+    ap_terms_tl           att,
+    ap_invoice_lines_all aila,
+    ap_invoice_distributions_all aida
 WHERE
-        h.org_id = :p_org_id
-    AND (:p_invoice_id IS NULL OR h.invoice_id = :p_invoice_id)
-    AND (:p_invoice_num IS NULL OR h.invoice_num = :p_invoice_num)
-    AND (:p_vendor_id IS NULL OR h.vendor_id = :p_vendor_id)
+        aia.org_id = :p_org_id
+    AND (:p_invoice_id IS NULL OR aia.invoice_id = :p_invoice_id)
+    AND (:p_invoice_num IS NULL OR aia.invoice_num = :p_invoice_num)
+    AND (:p_vendor_id IS NULL OR aia.vendor_id = :p_vendor_id)
     AND (:p_fecha_desde IS NULL
-         OR h.invoice_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR aia.invoice_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.invoice_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.vendor_id = s.vendor_id(+)
-    AND h.vendor_site_id = ss.vendor_site_id(+)
-    AND h.vendor_id = ss.vendor_id(+)
-    AND h.org_id = ss.org_id(+)
-    AND h.terms_id = t.term_id(+)
-    AND t.language(+) = :p_language
-    AND h.invoice_id = l.invoice_id(+)
-    AND h.org_id = l.org_id(+)
-    AND l.invoice_id = d.invoice_id(+)
-    AND l.line_number = d.invoice_line_number(+)
-    AND l.org_id = d.org_id(+)
-ORDER BY h.invoice_id, l.line_number, d.distribution_line_number, d.invoice_distribution_id
+         OR aia.invoice_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND aia.vendor_id = aps.vendor_id(+)
+    AND aia.vendor_site_id = assa.vendor_site_id(+)
+    AND aia.vendor_id = assa.vendor_id(+)
+    AND aia.org_id = assa.org_id(+)
+    AND aia.terms_id = att.term_id(+)
+    AND att.language(+) = :p_language
+    AND aia.invoice_id = aila.invoice_id(+)
+    AND aia.org_id = aila.org_id(+)
+    AND aila.invoice_id = aida.invoice_id(+)
+    AND aila.line_number = aida.invoice_line_number(+)
+    AND aila.org_id = aida.org_id(+)
+ORDER BY aia.invoice_id, aila.line_number, aida.distribution_line_number, aida.invoice_distribution_id
 ;

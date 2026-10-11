@@ -3,7 +3,7 @@
 ║  Archivo        : requisiciones.sql                                           ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 10/10/2026                                                  ║
-║  Versión        : 1.0                                                         ║
+║  Versión        : 1.1                                                         ║
 ║  Descripción    : Cabecera, líneas y distribuciones de requisiciones.         ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -20,6 +20,7 @@
 ║                                                                               ║
 ║  Actualizaciones:                                                             ║
 ║    10/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
+║    11/10/2026: Versión 1.1. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -32,106 +33,106 @@
 
 -- Consulta 1: Cabecera.
 SELECT
-    h.org_id, h.requisition_header_id, h.segment1 numero_requisicion,
-    h.type_lookup_code tipo_requisicion, h.creation_date,
-    h.authorization_status, h.approved_date,
-    h.preparer_id preparador_id, h.description,
-    h.cancel_flag cancelado_cabecera, h.closed_code cierre_cabecera
+    prha.org_id, prha.requisition_header_id, prha.segment1 numero_requisicion,
+    prha.type_lookup_code tipo_requisicion, prha.creation_date,
+    prha.authorization_status, prha.approved_date,
+    prha.preparer_id preparador_id, prha.description,
+    prha.cancel_flag cancelado_cabecera, prha.closed_code cierre_cabecera
 FROM
-    po_requisition_headers_all h
+    po_requisition_headers_all prha
 WHERE
-    h.org_id = :p_org_id
-    AND (:p_req_header_id IS NULL OR h.requisition_header_id = :p_req_header_id)
-    AND (:p_req_number IS NULL OR h.segment1 = :p_req_number)
-    AND (:p_tipo_requisicion IS NULL OR h.type_lookup_code = :p_tipo_requisicion)
+    prha.org_id = :p_org_id
+    AND (:p_req_header_id IS NULL OR prha.requisition_header_id = :p_req_header_id)
+    AND (:p_req_number IS NULL OR prha.segment1 = :p_req_number)
+    AND (:p_tipo_requisicion IS NULL OR prha.type_lookup_code = :p_tipo_requisicion)
     AND (:p_fecha_desde IS NULL
-         OR h.creation_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR prha.creation_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.creation_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-ORDER BY h.requisition_header_id
+         OR prha.creation_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+ORDER BY prha.requisition_header_id
 /
 -- Consulta 2: Cabecera y líneas, conservando cabeceras sin líneas.
 SELECT
-    h.org_id, h.requisition_header_id, h.segment1 numero_requisicion,
-    h.type_lookup_code tipo_requisicion, h.creation_date,
-    h.authorization_status, h.approved_date,
-    h.preparer_id preparador_id, h.description,
-    h.cancel_flag cancelado_cabecera, h.closed_code cierre_cabecera,
-    l.requisition_line_id, l.line_num, l.parent_req_line_id,
-    l.line_type_id, l.item_id, l.item_description, l.category_id,
-    l.unit_meas_lookup_code, l.quantity cantidad_linea,
-    l.unit_price precio_moneda_funcional,
-    l.currency_code, l.currency_unit_price,
-    l.amount importe_linea_funcional, l.currency_amount,
-    l.need_by_date, l.to_person_id solicitante_id,
-    l.source_type_code, l.destination_type_code,
-    l.destination_organization_id, l.destination_subinventory,
-    l.deliver_to_location_id, l.suggested_buyer_id,
-    l.vendor_id, l.vendor_site_id, l.suggested_vendor_name,
-    l.line_location_id envio_referenciado_id,
-    l.quantity_delivered, l.quantity_cancelled,
-    l.cancel_flag cancelado_linea, l.closed_code cierre_linea
+    prha.org_id, prha.requisition_header_id, prha.segment1 numero_requisicion,
+    prha.type_lookup_code tipo_requisicion, prha.creation_date,
+    prha.authorization_status, prha.approved_date,
+    prha.preparer_id preparador_id, prha.description,
+    prha.cancel_flag cancelado_cabecera, prha.closed_code cierre_cabecera,
+    prla.requisition_line_id, prla.line_num, prla.parent_req_line_id,
+    prla.line_type_id, prla.item_id, prla.item_description, prla.category_id,
+    prla.unit_meas_lookup_code, prla.quantity cantidad_linea,
+    prla.unit_price precio_moneda_funcional,
+    prla.currency_code, prla.currency_unit_price,
+    prla.amount importe_linea_funcional, prla.currency_amount,
+    prla.need_by_date, prla.to_person_id solicitante_id,
+    prla.source_type_code, prla.destination_type_code,
+    prla.destination_organization_id, prla.destination_subinventory,
+    prla.deliver_to_location_id, prla.suggested_buyer_id,
+    prla.vendor_id, prla.vendor_site_id, prla.suggested_vendor_name,
+    prla.line_location_id envio_referenciado_id,
+    prla.quantity_delivered, prla.quantity_cancelled,
+    prla.cancel_flag cancelado_linea, prla.closed_code cierre_linea
 FROM
-    po_requisition_headers_all h,
-    po_requisition_lines_all l
+    po_requisition_headers_all prha,
+    po_requisition_lines_all prla
 WHERE
-    h.org_id = :p_org_id
-    AND (:p_req_header_id IS NULL OR h.requisition_header_id = :p_req_header_id)
-    AND (:p_req_number IS NULL OR h.segment1 = :p_req_number)
-    AND (:p_tipo_requisicion IS NULL OR h.type_lookup_code = :p_tipo_requisicion)
+    prha.org_id = :p_org_id
+    AND (:p_req_header_id IS NULL OR prha.requisition_header_id = :p_req_header_id)
+    AND (:p_req_number IS NULL OR prha.segment1 = :p_req_number)
+    AND (:p_tipo_requisicion IS NULL OR prha.type_lookup_code = :p_tipo_requisicion)
     AND (:p_fecha_desde IS NULL
-         OR h.creation_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR prha.creation_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.creation_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.requisition_header_id = l.requisition_header_id(+)
-    AND h.org_id = l.org_id(+)
-ORDER BY h.requisition_header_id, l.line_num, l.requisition_line_id
+         OR prha.creation_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND prha.requisition_header_id = prla.requisition_header_id(+)
+    AND prha.org_id = prla.org_id(+)
+ORDER BY prha.requisition_header_id, prla.line_num, prla.requisition_line_id
 /
 -- Consulta 3: Cabecera, líneas y distribuciones; conserva detalle ausente.
 SELECT
-    h.org_id, h.requisition_header_id, h.segment1 numero_requisicion,
-    h.type_lookup_code tipo_requisicion, h.creation_date,
-    h.authorization_status, h.approved_date,
-    h.preparer_id preparador_id, h.description,
-    h.cancel_flag cancelado_cabecera, h.closed_code cierre_cabecera,
-    l.requisition_line_id, l.line_num, l.parent_req_line_id,
-    l.line_type_id, l.item_id, l.item_description, l.category_id,
-    l.unit_meas_lookup_code, l.quantity cantidad_linea,
-    l.unit_price precio_moneda_funcional,
-    l.currency_code, l.currency_unit_price,
-    l.amount importe_linea_funcional, l.currency_amount,
-    l.need_by_date, l.to_person_id solicitante_id,
-    l.source_type_code, l.destination_type_code,
-    l.destination_organization_id, l.destination_subinventory,
-    l.deliver_to_location_id, l.suggested_buyer_id,
-    l.vendor_id, l.vendor_site_id, l.suggested_vendor_name,
-    l.line_location_id envio_referenciado_id,
-    l.quantity_delivered, l.quantity_cancelled,
-    l.cancel_flag cancelado_linea, l.closed_code cierre_linea,
-    rd.distribution_id distribucion_req_id, rd.distribution_num,
-    rd.req_line_quantity cantidad_distribucion_req,
-    rd.req_line_amount importe_dist_req_funcional,
-    rd.req_line_currency_amount,
-    rd.set_of_books_id, rd.code_combination_id cuenta_cargo_req_id,
-    rd.budget_account_id, rd.accrual_account_id, rd.variance_account_id,
-    rd.encumbered_flag, rd.gl_encumbered_date,
-    rd.project_id, rd.task_id, rd.source_req_distribution_id
+    prha.org_id, prha.requisition_header_id, prha.segment1 numero_requisicion,
+    prha.type_lookup_code tipo_requisicion, prha.creation_date,
+    prha.authorization_status, prha.approved_date,
+    prha.preparer_id preparador_id, prha.description,
+    prha.cancel_flag cancelado_cabecera, prha.closed_code cierre_cabecera,
+    prla.requisition_line_id, prla.line_num, prla.parent_req_line_id,
+    prla.line_type_id, prla.item_id, prla.item_description, prla.category_id,
+    prla.unit_meas_lookup_code, prla.quantity cantidad_linea,
+    prla.unit_price precio_moneda_funcional,
+    prla.currency_code, prla.currency_unit_price,
+    prla.amount importe_linea_funcional, prla.currency_amount,
+    prla.need_by_date, prla.to_person_id solicitante_id,
+    prla.source_type_code, prla.destination_type_code,
+    prla.destination_organization_id, prla.destination_subinventory,
+    prla.deliver_to_location_id, prla.suggested_buyer_id,
+    prla.vendor_id, prla.vendor_site_id, prla.suggested_vendor_name,
+    prla.line_location_id envio_referenciado_id,
+    prla.quantity_delivered, prla.quantity_cancelled,
+    prla.cancel_flag cancelado_linea, prla.closed_code cierre_linea,
+    prda.distribution_id distribucion_req_id, prda.distribution_num,
+    prda.req_line_quantity cantidad_distribucion_req,
+    prda.req_line_amount importe_dist_req_funcional,
+    prda.req_line_currency_amount,
+    prda.set_of_books_id, prda.code_combination_id cuenta_cargo_req_id,
+    prda.budget_account_id, prda.accrual_account_id, prda.variance_account_id,
+    prda.encumbered_flag, prda.gl_encumbered_date,
+    prda.project_id, prda.task_id, prda.source_req_distribution_id
 FROM
-    po_requisition_headers_all h,
-    po_requisition_lines_all l,
-    po_req_distributions_all rd
+    po_requisition_headers_all prha,
+    po_requisition_lines_all prla,
+    po_req_distributions_all prda
 WHERE
-    h.org_id = :p_org_id
-    AND (:p_req_header_id IS NULL OR h.requisition_header_id = :p_req_header_id)
-    AND (:p_req_number IS NULL OR h.segment1 = :p_req_number)
-    AND (:p_tipo_requisicion IS NULL OR h.type_lookup_code = :p_tipo_requisicion)
+    prha.org_id = :p_org_id
+    AND (:p_req_header_id IS NULL OR prha.requisition_header_id = :p_req_header_id)
+    AND (:p_req_number IS NULL OR prha.segment1 = :p_req_number)
+    AND (:p_tipo_requisicion IS NULL OR prha.type_lookup_code = :p_tipo_requisicion)
     AND (:p_fecha_desde IS NULL
-         OR h.creation_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR prha.creation_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.creation_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.requisition_header_id = l.requisition_header_id(+)
-    AND h.org_id = l.org_id(+)
-    AND l.requisition_line_id = rd.requisition_line_id(+)
-    AND l.org_id = rd.org_id(+)
-ORDER BY h.requisition_header_id, l.line_num, l.requisition_line_id,
-         rd.distribution_num, rd.distribution_id;
+         OR prha.creation_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND prha.requisition_header_id = prla.requisition_header_id(+)
+    AND prha.org_id = prla.org_id(+)
+    AND prla.requisition_line_id = prda.requisition_line_id(+)
+    AND prla.org_id = prda.org_id(+)
+ORDER BY prha.requisition_header_id, prla.line_num, prla.requisition_line_id,
+         prda.distribution_num, prda.distribution_id;

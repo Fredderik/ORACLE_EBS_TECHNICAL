@@ -3,7 +3,7 @@
 ║  Archivo        : facturas.sql                                                ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 10/10/2026                                                  ║
-║  Versión        : 1.0                                                         ║
+║  Versión        : 1.1                                                         ║
 ║  Descripción    : Transacciones AR, líneas y distribuciones.                  ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -20,6 +20,7 @@
 ║                                                                               ║
 ║  Actualizaciones:                                                             ║
 ║    10/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
+║    11/10/2026: Versión 1.1. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -31,123 +32,123 @@
 -- Consulta 1: Cabecera. El importe es la suma de sus líneas registradas.
 -- No representa saldo pendiente ni reconstruye aplicaciones o vencimientos.
 SELECT
-    h.org_id,
-    h.customer_trx_id,
-    h.trx_number,
-    h.trx_date,
-    h.cust_trx_type_id,
-    tt.name tipo_transaccion,
-    tt.type clase_transaccion,
-    h.bill_to_customer_id,
-    ca.account_number numero_cliente,
-    p.party_name nombre_cliente,
-    h.bill_to_site_use_id,
-    h.ship_to_customer_id,
-    h.ship_to_site_use_id,
-    h.invoice_currency_code,
-    h.exchange_rate_type,
-    h.exchange_date,
-    h.exchange_rate,
-    h.complete_flag,
-    h.term_id,
-    t.name condiciones_pago,
-    h.purchase_order,
-    h.previous_customer_trx_id,
-    h.batch_source_id,
-    h.receipt_method_id,
-    h.comments,
-    (SELECT SUM(x.extended_amount)
-       FROM ra_customer_trx_lines_all x
-      WHERE x.customer_trx_id = h.customer_trx_id
-        AND x.org_id = h.org_id) importe_total_lineas
+    rcta.org_id,
+    rcta.customer_trx_id,
+    rcta.trx_number,
+    rcta.trx_date,
+    rcta.cust_trx_type_id,
+    rctta.name tipo_transaccion,
+    rctta.type clase_transaccion,
+    rcta.bill_to_customer_id,
+    hca.account_number numero_cliente,
+    hp.party_name nombre_cliente,
+    rcta.bill_to_site_use_id,
+    rcta.ship_to_customer_id,
+    rcta.ship_to_site_use_id,
+    rcta.invoice_currency_code,
+    rcta.exchange_rate_type,
+    rcta.exchange_date,
+    rcta.exchange_rate,
+    rcta.complete_flag,
+    rcta.term_id,
+    rtt.name condiciones_pago,
+    rcta.purchase_order,
+    rcta.previous_customer_trx_id,
+    rcta.batch_source_id,
+    rcta.receipt_method_id,
+    rcta.comments,
+    (SELECT SUM(rctla.extended_amount)
+       FROM ra_customer_trx_lines_all rctla
+      WHERE rctla.customer_trx_id = rcta.customer_trx_id
+        AND rctla.org_id = rcta.org_id) importe_total_lineas
 FROM
-    ra_customer_trx_all h,
-    ra_cust_trx_types_all tt,
-    hz_cust_accounts ca,
-    hz_parties p,
-    ra_terms_tl t
+    ra_customer_trx_all rcta,
+    ra_cust_trx_types_all rctta,
+    hz_cust_accounts hca,
+    hz_parties hp,
+    ra_terms_tl rtt
 WHERE
-    h.org_id = :p_org_id
-    AND (:p_customer_trx_id IS NULL OR h.customer_trx_id = :p_customer_trx_id)
-    AND (:p_trx_number IS NULL OR h.trx_number = :p_trx_number)
-    AND (:p_cust_account_id IS NULL OR h.bill_to_customer_id = :p_cust_account_id)
+    rcta.org_id = :p_org_id
+    AND (:p_customer_trx_id IS NULL OR rcta.customer_trx_id = :p_customer_trx_id)
+    AND (:p_trx_number IS NULL OR rcta.trx_number = :p_trx_number)
+    AND (:p_cust_account_id IS NULL OR rcta.bill_to_customer_id = :p_cust_account_id)
     AND (:p_fecha_desde IS NULL
-         OR h.trx_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR rcta.trx_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.trx_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.cust_trx_type_id = tt.cust_trx_type_id(+)
-    AND h.org_id = tt.org_id(+)
-    AND h.bill_to_customer_id = ca.cust_account_id(+)
-    AND ca.party_id = p.party_id(+)
-    AND h.term_id = t.term_id(+)
-    AND t.language(+) = :p_language
-ORDER BY h.customer_trx_id
+         OR rcta.trx_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND rcta.cust_trx_type_id = rctta.cust_trx_type_id(+)
+    AND rcta.org_id = rctta.org_id(+)
+    AND rcta.bill_to_customer_id = hca.cust_account_id(+)
+    AND hca.party_id = hp.party_id(+)
+    AND rcta.term_id = rtt.term_id(+)
+    AND rtt.language(+) = :p_language
+ORDER BY rcta.customer_trx_id
 /
 -- Consulta 2: Cabecera y líneas, incluidas TAX y FREIGHT.
 -- Conserva cabeceras sin líneas; no sumar importes entre monedas distintas.
 SELECT
-    h.org_id,
-    h.customer_trx_id,
-    h.trx_number,
-    h.trx_date,
-    h.cust_trx_type_id,
-    tt.name tipo_transaccion,
-    tt.type clase_transaccion,
-    h.bill_to_customer_id,
-    ca.account_number numero_cliente,
-    p.party_name nombre_cliente,
-    h.bill_to_site_use_id,
-    h.ship_to_customer_id,
-    h.ship_to_site_use_id,
-    h.invoice_currency_code,
-    h.exchange_rate_type,
-    h.exchange_date,
-    h.exchange_rate,
-    h.complete_flag,
-    h.term_id,
-    t.name condiciones_pago,
-    h.purchase_order,
-    h.previous_customer_trx_id,
-    h.batch_source_id,
-    h.receipt_method_id,
-    h.comments,
-    l.customer_trx_line_id customer_trx_line_id,
-    l.line_number line_number,
-    l.line_type line_type,
-    l.description descripcion_linea,
-    l.quantity_invoiced quantity_invoiced,
-    l.quantity_credited quantity_credited,
-    l.unit_selling_price unit_selling_price,
-    l.extended_amount importe_linea,
-    l.link_to_cust_trx_line_id link_to_cust_trx_line_id,
-    l.previous_customer_trx_line_id previous_customer_trx_line_id,
-    l.sales_order sales_order,
-    l.inventory_item_id inventory_item_id
+    rcta.org_id,
+    rcta.customer_trx_id,
+    rcta.trx_number,
+    rcta.trx_date,
+    rcta.cust_trx_type_id,
+    rctta.name tipo_transaccion,
+    rctta.type clase_transaccion,
+    rcta.bill_to_customer_id,
+    hca.account_number numero_cliente,
+    hp.party_name nombre_cliente,
+    rcta.bill_to_site_use_id,
+    rcta.ship_to_customer_id,
+    rcta.ship_to_site_use_id,
+    rcta.invoice_currency_code,
+    rcta.exchange_rate_type,
+    rcta.exchange_date,
+    rcta.exchange_rate,
+    rcta.complete_flag,
+    rcta.term_id,
+    rtt.name condiciones_pago,
+    rcta.purchase_order,
+    rcta.previous_customer_trx_id,
+    rcta.batch_source_id,
+    rcta.receipt_method_id,
+    rcta.comments,
+    rctla.customer_trx_line_id customer_trx_line_id,
+    rctla.line_number line_number,
+    rctla.line_type line_type,
+    rctla.description descripcion_linea,
+    rctla.quantity_invoiced quantity_invoiced,
+    rctla.quantity_credited quantity_credited,
+    rctla.unit_selling_price unit_selling_price,
+    rctla.extended_amount importe_linea,
+    rctla.link_to_cust_trx_line_id link_to_cust_trx_line_id,
+    rctla.previous_customer_trx_line_id previous_customer_trx_line_id,
+    rctla.sales_order sales_order,
+    rctla.inventory_item_id inventory_item_id
 FROM
-    ra_customer_trx_all h,
-    ra_cust_trx_types_all tt,
-    hz_cust_accounts ca,
-    hz_parties p,
-    ra_terms_tl t,
-    ra_customer_trx_lines_all l
+    ra_customer_trx_all rcta,
+    ra_cust_trx_types_all rctta,
+    hz_cust_accounts hca,
+    hz_parties hp,
+    ra_terms_tl rtt,
+    ra_customer_trx_lines_all rctla
 WHERE
-    h.org_id = :p_org_id
-    AND (:p_customer_trx_id IS NULL OR h.customer_trx_id = :p_customer_trx_id)
-    AND (:p_trx_number IS NULL OR h.trx_number = :p_trx_number)
-    AND (:p_cust_account_id IS NULL OR h.bill_to_customer_id = :p_cust_account_id)
+    rcta.org_id = :p_org_id
+    AND (:p_customer_trx_id IS NULL OR rcta.customer_trx_id = :p_customer_trx_id)
+    AND (:p_trx_number IS NULL OR rcta.trx_number = :p_trx_number)
+    AND (:p_cust_account_id IS NULL OR rcta.bill_to_customer_id = :p_cust_account_id)
     AND (:p_fecha_desde IS NULL
-         OR h.trx_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR rcta.trx_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.trx_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.cust_trx_type_id = tt.cust_trx_type_id(+)
-    AND h.org_id = tt.org_id(+)
-    AND h.bill_to_customer_id = ca.cust_account_id(+)
-    AND ca.party_id = p.party_id(+)
-    AND h.term_id = t.term_id(+)
-    AND t.language(+) = :p_language
-    AND h.customer_trx_id = l.customer_trx_id(+)
-    AND h.org_id = l.org_id(+)
-ORDER BY h.customer_trx_id, l.line_number, l.customer_trx_line_id
+         OR rcta.trx_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND rcta.cust_trx_type_id = rctta.cust_trx_type_id(+)
+    AND rcta.org_id = rctta.org_id(+)
+    AND rcta.bill_to_customer_id = hca.cust_account_id(+)
+    AND hca.party_id = hp.party_id(+)
+    AND rcta.term_id = rtt.term_id(+)
+    AND rtt.language(+) = :p_language
+    AND rcta.customer_trx_id = rctla.customer_trx_id(+)
+    AND rcta.org_id = rctla.org_id(+)
+ORDER BY rcta.customer_trx_id, rctla.line_number, rctla.customer_trx_line_id
 /
 -- Consulta 3: Cabecera, líneas y distribuciones.
 -- La subconsulta en FROM, con alias det, no es una tabla de EBS.
@@ -159,31 +160,31 @@ ORDER BY h.customer_trx_id, l.line_number, l.customer_trx_line_id
 -- Importe_linea se repite cuando hay varias distribuciones de esa línea.
 -- Estas distribuciones AR no sustituyen el detalle final de SLA/GL.
 SELECT
-    h.org_id,
-    h.customer_trx_id,
-    h.trx_number,
-    h.trx_date,
-    h.cust_trx_type_id,
-    tt.name tipo_transaccion,
-    tt.type clase_transaccion,
-    h.bill_to_customer_id,
-    ca.account_number numero_cliente,
-    p.party_name nombre_cliente,
-    h.bill_to_site_use_id,
-    h.ship_to_customer_id,
-    h.ship_to_site_use_id,
-    h.invoice_currency_code,
-    h.exchange_rate_type,
-    h.exchange_date,
-    h.exchange_rate,
-    h.complete_flag,
-    h.term_id,
-    t.name condiciones_pago,
-    h.purchase_order,
-    h.previous_customer_trx_id,
-    h.batch_source_id,
-    h.receipt_method_id,
-    h.comments,
+    rcta.org_id,
+    rcta.customer_trx_id,
+    rcta.trx_number,
+    rcta.trx_date,
+    rcta.cust_trx_type_id,
+    rctta.name tipo_transaccion,
+    rctta.type clase_transaccion,
+    rcta.bill_to_customer_id,
+    hca.account_number numero_cliente,
+    hp.party_name nombre_cliente,
+    rcta.bill_to_site_use_id,
+    rcta.ship_to_customer_id,
+    rcta.ship_to_site_use_id,
+    rcta.invoice_currency_code,
+    rcta.exchange_rate_type,
+    rcta.exchange_date,
+    rcta.exchange_rate,
+    rcta.complete_flag,
+    rcta.term_id,
+    rtt.name condiciones_pago,
+    rcta.purchase_order,
+    rcta.previous_customer_trx_id,
+    rcta.batch_source_id,
+    rcta.receipt_method_id,
+    rcta.comments,
     det.customer_trx_line_id,
     det.line_number,
     det.line_type,
@@ -210,50 +211,50 @@ SELECT
     det.posting_control_id,
     det.event_id
 FROM
-    ra_customer_trx_all h,
-    ra_cust_trx_types_all tt,
-    hz_cust_accounts ca,
-    hz_parties p,
-    ra_terms_tl t,
+    ra_customer_trx_all rcta,
+    ra_cust_trx_types_all rctta,
+    hz_cust_accounts hca,
+    hz_parties hp,
+    ra_terms_tl rtt,
     (
         SELECT
-            l.customer_trx_id,
-            l.org_id,
-            l.customer_trx_line_id customer_trx_line_id,
-            l.line_number line_number,
-            l.line_type line_type,
-            l.description descripcion_linea,
-            l.quantity_invoiced quantity_invoiced,
-            l.quantity_credited quantity_credited,
-            l.unit_selling_price unit_selling_price,
-            l.extended_amount importe_linea,
-            l.link_to_cust_trx_line_id link_to_cust_trx_line_id,
-            l.previous_customer_trx_line_id previous_customer_trx_line_id,
-            l.sales_order sales_order,
-            l.inventory_item_id inventory_item_id,
-            d.cust_trx_line_gl_dist_id cust_trx_line_gl_dist_id,
-            d.customer_trx_line_id linea_distribucion_id,
-            d.account_class account_class,
-            d.code_combination_id code_combination_id,
-            d.amount importe_distribucion,
-            d.acctd_amount importe_contabilizado,
-            d.percent porcentaje_distribucion,
-            d.gl_date gl_date,
-            d.gl_posted_date gl_posted_date,
-            d.account_set_flag account_set_flag,
-            d.latest_rec_flag latest_rec_flag,
-            d.posting_control_id posting_control_id,
-            d.event_id event_id
-        FROM ra_customer_trx_lines_all l,
-             ra_cust_trx_line_gl_dist_all d
-        WHERE l.org_id = :p_org_id
-          AND l.customer_trx_id = d.customer_trx_id(+)
-          AND l.customer_trx_line_id = d.customer_trx_line_id(+)
-          AND l.org_id = d.org_id(+)
+            rctla.customer_trx_id,
+            rctla.org_id,
+            rctla.customer_trx_line_id customer_trx_line_id,
+            rctla.line_number line_number,
+            rctla.line_type line_type,
+            rctla.description descripcion_linea,
+            rctla.quantity_invoiced quantity_invoiced,
+            rctla.quantity_credited quantity_credited,
+            rctla.unit_selling_price unit_selling_price,
+            rctla.extended_amount importe_linea,
+            rctla.link_to_cust_trx_line_id link_to_cust_trx_line_id,
+            rctla.previous_customer_trx_line_id previous_customer_trx_line_id,
+            rctla.sales_order sales_order,
+            rctla.inventory_item_id inventory_item_id,
+            rctlgda.cust_trx_line_gl_dist_id cust_trx_line_gl_dist_id,
+            rctlgda.customer_trx_line_id linea_distribucion_id,
+            rctlgda.account_class account_class,
+            rctlgda.code_combination_id code_combination_id,
+            rctlgda.amount importe_distribucion,
+            rctlgda.acctd_amount importe_contabilizado,
+            rctlgda.percent porcentaje_distribucion,
+            rctlgda.gl_date gl_date,
+            rctlgda.gl_posted_date gl_posted_date,
+            rctlgda.account_set_flag account_set_flag,
+            rctlgda.latest_rec_flag latest_rec_flag,
+            rctlgda.posting_control_id posting_control_id,
+            rctlgda.event_id event_id
+        FROM ra_customer_trx_lines_all rctla,
+             ra_cust_trx_line_gl_dist_all rctlgda
+        WHERE rctla.org_id = :p_org_id
+          AND rctla.customer_trx_id = rctlgda.customer_trx_id(+)
+          AND rctla.customer_trx_line_id = rctlgda.customer_trx_line_id(+)
+          AND rctla.org_id = rctlgda.org_id(+)
         UNION ALL
         SELECT
-            d.customer_trx_id,
-            d.org_id,
+            rctlgda.customer_trx_id,
+            rctlgda.org_id,
             NULL,
             NULL,
             NULL,
@@ -266,46 +267,46 @@ FROM
             NULL,
             NULL,
             NULL,
-            d.cust_trx_line_gl_dist_id,
-            d.customer_trx_line_id,
-            d.account_class,
-            d.code_combination_id,
-            d.amount,
-            d.acctd_amount,
-            d.percent,
-            d.gl_date,
-            d.gl_posted_date,
-            d.account_set_flag,
-            d.latest_rec_flag,
-            d.posting_control_id,
-            d.event_id
-        FROM ra_cust_trx_line_gl_dist_all d
-        WHERE d.org_id = :p_org_id
+            rctlgda.cust_trx_line_gl_dist_id,
+            rctlgda.customer_trx_line_id,
+            rctlgda.account_class,
+            rctlgda.code_combination_id,
+            rctlgda.amount,
+            rctlgda.acctd_amount,
+            rctlgda.percent,
+            rctlgda.gl_date,
+            rctlgda.gl_posted_date,
+            rctlgda.account_set_flag,
+            rctlgda.latest_rec_flag,
+            rctlgda.posting_control_id,
+            rctlgda.event_id
+        FROM ra_cust_trx_line_gl_dist_all rctlgda
+        WHERE rctlgda.org_id = :p_org_id
           AND NOT EXISTS
           (
               SELECT 1
-              FROM ra_customer_trx_lines_all lx
-              WHERE lx.customer_trx_id = d.customer_trx_id
-                AND lx.customer_trx_line_id = d.customer_trx_line_id
-                AND lx.org_id = d.org_id
+              FROM ra_customer_trx_lines_all rctla_2
+              WHERE rctla_2.customer_trx_id = rctlgda.customer_trx_id
+                AND rctla_2.customer_trx_line_id = rctlgda.customer_trx_line_id
+                AND rctla_2.org_id = rctlgda.org_id
           )
     ) det
 WHERE
-    h.org_id = :p_org_id
-    AND (:p_customer_trx_id IS NULL OR h.customer_trx_id = :p_customer_trx_id)
-    AND (:p_trx_number IS NULL OR h.trx_number = :p_trx_number)
-    AND (:p_cust_account_id IS NULL OR h.bill_to_customer_id = :p_cust_account_id)
+    rcta.org_id = :p_org_id
+    AND (:p_customer_trx_id IS NULL OR rcta.customer_trx_id = :p_customer_trx_id)
+    AND (:p_trx_number IS NULL OR rcta.trx_number = :p_trx_number)
+    AND (:p_cust_account_id IS NULL OR rcta.bill_to_customer_id = :p_cust_account_id)
     AND (:p_fecha_desde IS NULL
-         OR h.trx_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR rcta.trx_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.trx_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.cust_trx_type_id = tt.cust_trx_type_id(+)
-    AND h.org_id = tt.org_id(+)
-    AND h.bill_to_customer_id = ca.cust_account_id(+)
-    AND ca.party_id = p.party_id(+)
-    AND h.term_id = t.term_id(+)
-    AND t.language(+) = :p_language
-    AND h.customer_trx_id = det.customer_trx_id(+)
-    AND h.org_id = det.org_id(+)
-ORDER BY h.customer_trx_id, det.line_number, det.customer_trx_line_id,
+         OR rcta.trx_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND rcta.cust_trx_type_id = rctta.cust_trx_type_id(+)
+    AND rcta.org_id = rctta.org_id(+)
+    AND rcta.bill_to_customer_id = hca.cust_account_id(+)
+    AND hca.party_id = hp.party_id(+)
+    AND rcta.term_id = rtt.term_id(+)
+    AND rtt.language(+) = :p_language
+    AND rcta.customer_trx_id = det.customer_trx_id(+)
+    AND rcta.org_id = det.org_id(+)
+ORDER BY rcta.customer_trx_id, det.line_number, det.customer_trx_line_id,
          det.cust_trx_line_gl_dist_id;

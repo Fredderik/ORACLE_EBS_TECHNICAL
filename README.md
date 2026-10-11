@@ -107,6 +107,7 @@ ORACLE_EBS_TECHNICAL/
 - Sintaxis SQL tradicional: tablas separadas por comas en `FROM` y relaciones por igualdad en `WHERE`.
 - Uniones externas mediante `(+)`, incluida la condición de idioma o cualquier otra restricción de la tabla opcional.
 - Variables de enlace explícitas para los filtros; nombres técnicos y códigos de Oracle conservados.
+- Alias de tablas por iniciales: ap_checks_all aca, xla_ae_headers xah y gl_je_headers gjh. Si coinciden con palabras reservadas, usar una variante reconocible, como ap_suppliers aps. Para varias referencias al mismo objeto, añadir un sufijo de función (hp_banco, hp_sucursal) o numérico (rctla_2). La regla también se aplica a los alias de CTE; los alias descriptivos de resultados derivados se conservan.
 
 ## Cómo utilizar los recursos
 

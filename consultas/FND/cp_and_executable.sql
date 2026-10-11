@@ -3,7 +3,7 @@
 ║  Archivo        : cp_and_executable.sql                                       ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 23/03/2025                                                  ║
-║  Versión        : 1.2                                                         ║
+║  Versión        : 1.3                                                         ║
 ║  Descripción    : Concurrentes, ejecutables y parámetros.                     ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -27,6 +27,7 @@
 ║    09/10/2026: Versión 1.1. Consulta de parámetros y grupo explícito.         ║
 ║                Unión completa del ejecutable; alcance R12.                    ║
 ║    10/10/2026: Versión 1.2. Comentarios y cabecera en español.                ║
+║    11/10/2026: Versión 1.3. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -86,38 +87,38 @@ SELECT
     fcpt.language,
     fcp.concurrent_program_name,
     fcpt.user_concurrent_program_name,
-    fcu.descriptive_flex_context_code,
-    fcu.column_seq_num parameter_sequence,
-    fcu.application_column_name,
-    fcu.end_user_column_name parameter_name,
-    fcut.form_left_prompt parameter_prompt,
-    fcut.description parameter_description,
-    fcu.enabled_flag,
-    fcu.required_flag,
-    fcu.display_flag,
-    fcu.default_type,
-    fcu.default_value,
-    fcu.srw_param parameter_token,
-    fcu.flex_value_set_id,
-    fvs.flex_value_set_name
+    fdfcu.descriptive_flex_context_code,
+    fdfcu.column_seq_num parameter_sequence,
+    fdfcu.application_column_name,
+    fdfcu.end_user_column_name parameter_name,
+    fdfcut.form_left_prompt parameter_prompt,
+    fdfcut.description parameter_description,
+    fdfcu.enabled_flag,
+    fdfcu.required_flag,
+    fdfcu.display_flag,
+    fdfcu.default_type,
+    fdfcu.default_value,
+    fdfcu.srw_param parameter_token,
+    fdfcu.flex_value_set_id,
+    ffvs.flex_value_set_name
 FROM
     fnd_concurrent_programs    fcp,
     fnd_concurrent_programs_tl fcpt,
-    fnd_descr_flex_column_usages fcu,
-    fnd_descr_flex_col_usage_tl  fcut,
-    fnd_flex_value_sets         fvs
+    fnd_descr_flex_column_usages fdfcu,
+    fnd_descr_flex_col_usage_tl  fdfcut,
+    fnd_flex_value_sets         ffvs
 WHERE
         1 = 1
     AND fcp.application_id = fcpt.application_id
     AND fcp.concurrent_program_id = fcpt.concurrent_program_id
-    AND fcu.application_id = fcp.application_id
-    AND fcu.descriptive_flexfield_name = '$SRS$.' || fcp.concurrent_program_name
-    AND fcut.application_id = fcu.application_id
-    AND fcut.descriptive_flexfield_name = fcu.descriptive_flexfield_name
-    AND fcut.descriptive_flex_context_code = fcu.descriptive_flex_context_code
-    AND fcut.application_column_name = fcu.application_column_name
-    AND fcut.language = fcpt.language
-    AND fcu.flex_value_set_id = fvs.flex_value_set_id(+)
+    AND fdfcu.application_id = fcp.application_id
+    AND fdfcu.descriptive_flexfield_name = '$SRS$.' || fcp.concurrent_program_name
+    AND fdfcut.application_id = fdfcu.application_id
+    AND fdfcut.descriptive_flexfield_name = fdfcu.descriptive_flexfield_name
+    AND fdfcut.descriptive_flex_context_code = fdfcu.descriptive_flex_context_code
+    AND fdfcut.application_column_name = fdfcu.application_column_name
+    AND fdfcut.language = fcpt.language
+    AND fdfcu.flex_value_set_id = ffvs.flex_value_set_id(+)
     AND fcpt.language = :p_language
     --Los mismos filtros opcionales del concurrente que en la consulta 1.
     AND fcp.application_id = nvl(:p_application_id, fcp.application_id)
@@ -128,6 +129,6 @@ ORDER BY
     fcp.application_id,
     fcp.concurrent_program_name,
     fcp.concurrent_program_id,
-    fcu.descriptive_flex_context_code,
-    fcu.column_seq_num,
-    fcu.application_column_name;
+    fdfcu.descriptive_flex_context_code,
+    fdfcu.column_seq_num,
+    fdfcu.application_column_name;

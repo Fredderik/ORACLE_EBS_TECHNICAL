@@ -3,7 +3,7 @@
 ║  Archivo        : configuracion_gl.sql                                            ║
 ║  Autor          : Freddy E. Aparicio M.                                           ║
 ║  Fecha creación : 09/10/2026                                                      ║
-║  Versión        : 1.1                                                             ║
+║  Versión        : 1.2                                                             ║
 ║  Descripción    : Libros, períodos abiertos y definición de segmentos.            ║
 ║                                                                                   ║
 ║  Parámetros     : Variables de enlace explícitas.                                 ║
@@ -22,6 +22,7 @@
 ║  Actualizaciones:                                                                 ║
 ║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                      ║
 ║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.                   ║
+║    11/10/2026: Versión 1.2. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -54,33 +55,33 @@ SELECT gl.ledger_id, gl.name ledger_name, gps.period_name,
 --GL_ACCOUNT=cuenta natural. Cada calificador habilitado genera una fila.
 --Sin calificador habilitado, el segmento aparece con calificador NULL.
 SELECT gl.ledger_id, gl.name ledger_name, gl.chart_of_accounts_id,
-       fs.segment_num display_sequence, fs.application_column_name,
-       fs.segment_name, fst.form_left_prompt, fst.description,
-       fs.enabled_flag, fs.required_flag,
-       fs.flex_value_set_id, fvs.flex_value_set_name,
-       sav.segment_attribute_type qualifier_code, sav.attribute_value,
-       CASE WHEN sav.segment_attribute_type = 'GL_ACCOUNT'
+       fifs.segment_num display_sequence, fifs.application_column_name,
+       fifs.segment_name, fifst.form_left_prompt, fifst.description,
+       fifs.enabled_flag, fifs.required_flag,
+       fifs.flex_value_set_id, ffvs.flex_value_set_name,
+       fsav.segment_attribute_type qualifier_code, fsav.attribute_value,
+       CASE WHEN fsav.segment_attribute_type = 'GL_ACCOUNT'
             THEN 'CUENTA_NATURAL'
-            ELSE sav.segment_attribute_type END qualifier_meaning
+            ELSE fsav.segment_attribute_type END qualifier_meaning
   FROM gl_ledgers gl,
-       fnd_id_flex_segments fs,
-       fnd_id_flex_segments_tl fst,
-       fnd_flex_value_sets fvs,
-       fnd_segment_attribute_values sav
- WHERE fs.application_id = 101
-   AND fs.id_flex_code = 'GL#'
-   AND fs.id_flex_num = gl.chart_of_accounts_id
-   AND fst.application_id(+) = fs.application_id
-   AND fst.id_flex_code(+) = fs.id_flex_code
-   AND fst.id_flex_num(+) = fs.id_flex_num
-   AND fst.application_column_name(+) = fs.application_column_name
-   AND fst.language(+) = :p_language
-   AND fvs.flex_value_set_id(+) = fs.flex_value_set_id
-   AND sav.application_id(+) = fs.application_id
-   AND sav.id_flex_code(+) = fs.id_flex_code
-   AND sav.id_flex_num(+) = fs.id_flex_num
-   AND sav.application_column_name(+) = fs.application_column_name
-   AND sav.attribute_value(+) = 'Y'
+       fnd_id_flex_segments fifs,
+       fnd_id_flex_segments_tl fifst,
+       fnd_flex_value_sets ffvs,
+       fnd_segment_attribute_values fsav
+ WHERE fifs.application_id = 101
+   AND fifs.id_flex_code = 'GL#'
+   AND fifs.id_flex_num = gl.chart_of_accounts_id
+   AND fifst.application_id(+) = fifs.application_id
+   AND fifst.id_flex_code(+) = fifs.id_flex_code
+   AND fifst.id_flex_num(+) = fifs.id_flex_num
+   AND fifst.application_column_name(+) = fifs.application_column_name
+   AND fifst.language(+) = :p_language
+   AND ffvs.flex_value_set_id(+) = fifs.flex_value_set_id
+   AND fsav.application_id(+) = fifs.application_id
+   AND fsav.id_flex_code(+) = fifs.id_flex_code
+   AND fsav.id_flex_num(+) = fifs.id_flex_num
+   AND fsav.application_column_name(+) = fifs.application_column_name
+   AND fsav.attribute_value(+) = 'Y'
    AND gl.object_type_code = 'L'
    AND (:p_ledger_id IS NULL OR gl.ledger_id = :p_ledger_id)
- ORDER BY gl.ledger_id, fs.segment_num, sav.segment_attribute_type;
+ ORDER BY gl.ledger_id, fifs.segment_num, fsav.segment_attribute_type;

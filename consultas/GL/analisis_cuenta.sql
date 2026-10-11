@@ -3,7 +3,7 @@
 ║  Archivo        : analisis_cuenta.sql                                             ║
 ║  Autor          : Freddy E. Aparicio M.                                           ║
 ║  Fecha creación : 09/10/2026                                                      ║
-║  Versión        : 1.1                                                             ║
+║  Versión        : 1.2                                                             ║
 ║  Descripción    : Detalle contabilizado y conciliación con GL_BALANCES.           ║
 ║                                                                                   ║
 ║  Parámetros     : Variables de enlace explícitas.                                 ║
@@ -27,6 +27,7 @@
 ║  Actualizaciones:                                                                 ║
 ║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                      ║
 ║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.                   ║
+║    11/10/2026: Versión 1.2. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -36,13 +37,13 @@
 WITH ledger_scope AS (
     SELECT gl.ledger_id, gl.name ledger_name, gl.currency_code,
            gl.chart_of_accounts_id,
-           (SELECT sav.application_column_name
-              FROM fnd_segment_attribute_values sav
-             WHERE sav.application_id = 101
-               AND sav.id_flex_code = 'GL#'
-               AND sav.id_flex_num = gl.chart_of_accounts_id
-               AND sav.segment_attribute_type = 'GL_ACCOUNT'
-               AND sav.attribute_value = 'Y') account_column
+           (SELECT fsav.application_column_name
+              FROM fnd_segment_attribute_values fsav
+             WHERE fsav.application_id = 101
+               AND fsav.id_flex_code = 'GL#'
+               AND fsav.id_flex_num = gl.chart_of_accounts_id
+               AND fsav.segment_attribute_type = 'GL_ACCOUNT'
+               AND fsav.attribute_value = 'Y') account_column
       FROM gl_ledgers gl
      WHERE gl.ledger_id = :p_ledger_id
        AND gl.object_type_code = 'L'
@@ -171,13 +172,13 @@ SELECT sa.ledger_id, sa.ledger_name, :p_period_name period_name,
 WITH ledger_scope AS (
     SELECT gl.ledger_id, gl.name ledger_name, gl.currency_code,
            gl.chart_of_accounts_id,
-           (SELECT sav.application_column_name
-              FROM fnd_segment_attribute_values sav
-             WHERE sav.application_id = 101
-               AND sav.id_flex_code = 'GL#'
-               AND sav.id_flex_num = gl.chart_of_accounts_id
-               AND sav.segment_attribute_type = 'GL_ACCOUNT'
-               AND sav.attribute_value = 'Y') account_column
+           (SELECT fsav.application_column_name
+              FROM fnd_segment_attribute_values fsav
+             WHERE fsav.application_id = 101
+               AND fsav.id_flex_code = 'GL#'
+               AND fsav.id_flex_num = gl.chart_of_accounts_id
+               AND fsav.segment_attribute_type = 'GL_ACCOUNT'
+               AND fsav.attribute_value = 'Y') account_column
       FROM gl_ledgers gl
      WHERE gl.ledger_id = :p_ledger_id
        AND gl.object_type_code = 'L'
@@ -315,32 +316,32 @@ WITH ledger_scope AS (
      WHERE lt.code_combination_id(+) = sa.code_combination_id
        AND bt.code_combination_id(+) = sa.code_combination_id
 )
-SELECT r.ledger_id, r.ledger_name, :p_period_name period_name,
-       r.currency_code ledger_currency,
-       r.account_column, r.account_value, r.code_combination_id,
-       r.combination_description, r.account_type,
-       r.line_count, r.balance_rows,
-       r.lines_dr, r.lines_cr, r.lines_dr - r.lines_cr lines_period_net,
-       r.balance_dr, r.balance_cr, r.balance_dr - r.balance_cr balance_period_net,
-       r.beginning_dr - r.beginning_cr beginning_balance,
-       r.beginning_dr - r.beginning_cr + r.balance_dr - r.balance_cr ending_balance,
-       r.beginning_dr - r.beginning_cr + r.lines_dr - r.lines_cr expected_ending_balance,
-       r.lines_dr - r.balance_dr difference_dr,
-       r.lines_cr - r.balance_cr difference_cr,
-       (r.lines_dr - r.lines_cr) - (r.balance_dr - r.balance_cr) difference_net,
+SELECT rec.ledger_id, rec.ledger_name, :p_period_name period_name,
+       rec.currency_code ledger_currency,
+       rec.account_column, rec.account_value, rec.code_combination_id,
+       rec.combination_description, rec.account_type,
+       rec.line_count, rec.balance_rows,
+       rec.lines_dr, rec.lines_cr, rec.lines_dr - rec.lines_cr lines_period_net,
+       rec.balance_dr, rec.balance_cr, rec.balance_dr - rec.balance_cr balance_period_net,
+       rec.beginning_dr - rec.beginning_cr beginning_balance,
+       rec.beginning_dr - rec.beginning_cr + rec.balance_dr - rec.balance_cr ending_balance,
+       rec.beginning_dr - rec.beginning_cr + rec.lines_dr - rec.lines_cr expected_ending_balance,
+       rec.lines_dr - rec.balance_dr difference_dr,
+       rec.lines_cr - rec.balance_cr difference_cr,
+       (rec.lines_dr - rec.lines_cr) - (rec.balance_dr - rec.balance_cr) difference_net,
        CASE
-           WHEN r.balance_rows > 1 THEN 'REVISAR_MULTIPLES_SALDOS'
-           WHEN r.balance_rows = 0 AND r.line_count > 0 THEN 'SIN_SALDO_CON_MOVIMIENTOS'
-           WHEN r.balance_rows = 0 THEN 'SIN_FILA_GL_BALANCES'
-           WHEN abs(r.lines_dr - r.balance_dr) <= abs(nvl(:p_tolerance, 0.01))
-            AND abs(r.lines_cr - r.balance_cr) <= abs(nvl(:p_tolerance, 0.01))
+           WHEN rec.balance_rows > 1 THEN 'REVISAR_MULTIPLES_SALDOS'
+           WHEN rec.balance_rows = 0 AND rec.line_count > 0 THEN 'SIN_SALDO_CON_MOVIMIENTOS'
+           WHEN rec.balance_rows = 0 THEN 'SIN_FILA_GL_BALANCES'
+           WHEN abs(rec.lines_dr - rec.balance_dr) <= abs(nvl(:p_tolerance, 0.01))
+            AND abs(rec.lines_cr - rec.balance_cr) <= abs(nvl(:p_tolerance, 0.01))
                THEN 'CUADRA'
            ELSE 'DIFERENCIA'
        END reconciliation_status,
-       sum(r.lines_dr - r.lines_cr) OVER () total_account_movement,
-       sum(r.balance_dr - r.balance_cr) OVER () total_balance_movement,
-       sum(r.beginning_dr - r.beginning_cr) OVER () total_beginning_balance,
-       sum(r.beginning_dr - r.beginning_cr + r.balance_dr - r.balance_cr)
+       sum(rec.lines_dr - rec.lines_cr) OVER () total_account_movement,
+       sum(rec.balance_dr - rec.balance_cr) OVER () total_balance_movement,
+       sum(rec.beginning_dr - rec.beginning_cr) OVER () total_beginning_balance,
+       sum(rec.beginning_dr - rec.beginning_cr + rec.balance_dr - rec.balance_cr)
            OVER () total_ending_balance
-  FROM reconciliation r
- ORDER BY r.code_combination_id;
+  FROM reconciliation rec
+ ORDER BY rec.code_combination_id;

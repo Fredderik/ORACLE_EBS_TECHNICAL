@@ -3,7 +3,7 @@
 ║  Archivo        : configuracion_compras.sql                                   ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 10/10/2026                                                  ║
-║  Versión        : 1.0                                                         ║
+║  Versión        : 1.1                                                         ║
 ║  Descripción    : Sitios, compradores y tipos de compras.                     ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -20,6 +20,7 @@
 ║                                                                               ║
 ║  Actualizaciones:                                                             ║
 ║    10/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
+║    11/10/2026: Versión 1.1. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -31,68 +32,68 @@
 
 -- Consulta 1: Proveedores y sitios de la organización, con indicadores de uso.
 -- Incluye sitios sin habilitación de compras para revisar su configuración.
-SELECT s.vendor_id, s.segment1 proveedor_numero, s.vendor_name,
-       s.enabled_flag, s.start_date_active, s.end_date_active,
-       ss.org_id, ss.vendor_site_id, ss.vendor_site_code,
-       ss.purchasing_site_flag, ss.rfq_only_site_flag, ss.pay_site_flag,
-       ss.inactive_date, ss.address_line1, ss.city, ss.country,
-       ss.terms_id, t.name condiciones_pago,
-       ss.invoice_currency_code, ss.payment_currency_code,
-       ss.ship_to_location_id, ss.bill_to_location_id,
-       ss.ship_via_lookup_code, ss.freight_terms_lookup_code,
-       ss.fob_lookup_code
-FROM ap_suppliers s,
-     ap_supplier_sites_all ss,
-     ap_terms_tl t
-WHERE s.vendor_id = ss.vendor_id
-    AND ss.org_id = :p_org_id
-    AND (:p_vendor_id IS NULL OR s.vendor_id = :p_vendor_id)
-    AND ss.terms_id = t.term_id(+)
-    AND t.language(+) = :p_language
-ORDER BY s.vendor_id, ss.vendor_site_id
+SELECT aps.vendor_id, aps.segment1 proveedor_numero, aps.vendor_name,
+       aps.enabled_flag, aps.start_date_active, aps.end_date_active,
+       assa.org_id, assa.vendor_site_id, assa.vendor_site_code,
+       assa.purchasing_site_flag, assa.rfq_only_site_flag, assa.pay_site_flag,
+       assa.inactive_date, assa.address_line1, assa.city, assa.country,
+       assa.terms_id, att.name condiciones_pago,
+       assa.invoice_currency_code, assa.payment_currency_code,
+       assa.ship_to_location_id, assa.bill_to_location_id,
+       assa.ship_via_lookup_code, assa.freight_terms_lookup_code,
+       assa.fob_lookup_code
+FROM ap_suppliers aps,
+     ap_supplier_sites_all assa,
+     ap_terms_tl att
+WHERE aps.vendor_id = assa.vendor_id
+    AND assa.org_id = :p_org_id
+    AND (:p_vendor_id IS NULL OR aps.vendor_id = :p_vendor_id)
+    AND assa.terms_id = att.term_id(+)
+    AND att.language(+) = :p_language
+ORDER BY aps.vendor_id, assa.vendor_site_id
 /
 -- Consulta 2: Compradores; nombre HR vigente en la fecha indicada.
 -- Conserva compradores sin registro HR para esa fecha.
 -- Las fechas de habilitación del comprador se muestran sin excluir inactivos.
-SELECT a.agent_id, p.full_name comprador_nombre,
-       p.employee_number, p.business_group_id,
-       a.start_date_active, a.end_date_active,
-       a.location_id, a.category_id, a.authorization_limit,
-       p.effective_start_date, p.effective_end_date
-FROM po_agents a,
-     per_all_people_f p
-WHERE (:p_agent_id IS NULL OR a.agent_id = :p_agent_id)
-    AND a.agent_id = p.person_id(+)
-    AND p.effective_start_date(+) <= TO_DATE(:p_fecha_consulta, 'FXYYYY-MM-DD')
-    AND p.effective_end_date(+) >= TO_DATE(:p_fecha_consulta, 'FXYYYY-MM-DD')
-ORDER BY a.agent_id
+SELECT pa.agent_id, papf.full_name comprador_nombre,
+       papf.employee_number, papf.business_group_id,
+       pa.start_date_active, pa.end_date_active,
+       pa.location_id, pa.category_id, pa.authorization_limit,
+       papf.effective_start_date, papf.effective_end_date
+FROM po_agents pa,
+     per_all_people_f papf
+WHERE (:p_agent_id IS NULL OR pa.agent_id = :p_agent_id)
+    AND pa.agent_id = papf.person_id(+)
+    AND papf.effective_start_date(+) <= TO_DATE(:p_fecha_consulta, 'FXYYYY-MM-DD')
+    AND papf.effective_end_date(+) >= TO_DATE(:p_fecha_consulta, 'FXYYYY-MM-DD')
+ORDER BY pa.agent_id
 /
 -- Consulta 3: Tipos de línea y valores predeterminados.
-SELECT b.line_type_id, t.line_type, t.description,
-       b.order_type_lookup_code, b.category_id,
-       b.unit_of_measure, b.unit_price, b.receiving_flag,
-       b.outside_operation_flag, b.inactive_date
-FROM po_line_types_b b,
-     po_line_types_tl t
-WHERE b.line_type_id = t.line_type_id(+)
-    AND t.language(+) = :p_language
-    AND (:p_line_type_id IS NULL OR b.line_type_id = :p_line_type_id)
-ORDER BY b.line_type_id
+SELECT pltb.line_type_id, pltt.line_type, pltt.description,
+       pltb.order_type_lookup_code, pltb.category_id,
+       pltb.unit_of_measure, pltb.unit_price, pltb.receiving_flag,
+       pltb.outside_operation_flag, pltb.inactive_date
+FROM po_line_types_b pltb,
+     po_line_types_tl pltt
+WHERE pltb.line_type_id = pltt.line_type_id(+)
+    AND pltt.language(+) = :p_language
+    AND (:p_line_type_id IS NULL OR pltb.line_type_id = :p_line_type_id)
+ORDER BY pltb.line_type_id
 /
 -- Consulta 4: Tipos de documento y opciones de aprobación de la OU.
 -- No reconstruye las jerarquías ni el resultado del flujo de aprobación.
-SELECT b.org_id, b.document_type_code, b.document_subtype,
-       t.type_name,
-       b.can_preparer_approve_flag,
-       b.can_approver_modify_doc_flag,
-       b.can_change_approval_path_flag,
-       b.forwarding_mode_code,
-       b.default_approval_path_id
-FROM po_document_types_all_b b,
-     po_document_types_all_tl t
-WHERE b.org_id = :p_org_id
-    AND b.document_type_code = t.document_type_code(+)
-    AND b.document_subtype = t.document_subtype(+)
-    AND b.org_id = t.org_id(+)
-    AND t.language(+) = :p_language
-ORDER BY b.document_type_code, b.document_subtype;
+SELECT pdtab.org_id, pdtab.document_type_code, pdtab.document_subtype,
+       pdtat.type_name,
+       pdtab.can_preparer_approve_flag,
+       pdtab.can_approver_modify_doc_flag,
+       pdtab.can_change_approval_path_flag,
+       pdtab.forwarding_mode_code,
+       pdtab.default_approval_path_id
+FROM po_document_types_all_b pdtab,
+     po_document_types_all_tl pdtat
+WHERE pdtab.org_id = :p_org_id
+    AND pdtab.document_type_code = pdtat.document_type_code(+)
+    AND pdtab.document_subtype = pdtat.document_subtype(+)
+    AND pdtab.org_id = pdtat.org_id(+)
+    AND pdtat.language(+) = :p_language
+ORDER BY pdtab.document_type_code, pdtab.document_subtype;

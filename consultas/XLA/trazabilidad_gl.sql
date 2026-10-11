@@ -3,7 +3,7 @@
 ║  Archivo        : trazabilidad_gl.sql                                         ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 11/10/2026                                                  ║
-║  Versión        : 1.0                                                         ║
+║  Versión        : 1.1                                                         ║
 ║  Descripción    : Relación entre líneas XLA, referencias y asientos GL.       ║
 ║  Parámetros     : Variables de enlace explícitas; NULL omite opcionales.      ║
 ║    Obligatorios NUMBER: p_application_id, p_ledger_id.                        ║
@@ -15,6 +15,7 @@
 ║                   Estados originales; no requiere parámetro de idioma.        ║
 ║                   Pendiente ejecución nativa en Oracle EBS.                   ║
 ║  Actualizaciones: 11/10/2026 — versión 1.0, creación.                         ║
+║    11/10/2026: Versión 1.1. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -23,51 +24,51 @@
 -- Una línea GL resumida puede corresponder a varias líneas XLA.
 -- Los importes se repiten según los vínculos: este detalle no es un total.
 SELECT
-    h.application_id, h.ledger_id, h.entity_id, h.event_id, h.ae_header_id,
-    h.accounting_date, h.period_name, h.je_category_name,
-    h.accounting_entry_status_code, h.accounting_entry_type_code,
-    h.gl_transfer_status_code, h.gl_transfer_date, h.balance_type_code,
-    h.description descripcion_asiento, h.group_id, h.request_id,
-    l.ae_line_num, l.code_combination_id, l.accounting_class_code,
-    l.currency_code, l.entered_dr, l.entered_cr, l.accounted_dr, l.accounted_cr,
-    l.currency_conversion_type, l.currency_conversion_date,
-    l.currency_conversion_rate, l.description descripcion_linea,
-    l.party_id, l.party_site_id, l.party_type_code,
-    l.gl_sl_link_id, l.gl_sl_link_table,
-    r.je_header_id cabecera_gl_referencia, r.je_line_num linea_gl_referencia,
-    j.je_header_id, j.je_line_num, j.code_combination_id cuenta_gl,
-    j.entered_dr debe_ingresado_gl, j.entered_cr haber_ingresado_gl,
-    j.accounted_dr debe_contabilizado_gl, j.accounted_cr haber_contabilizado_gl,
-    g.name asiento_gl, g.ledger_id libro_gl, g.period_name periodo_gl,
-    g.currency_code moneda_gl, g.je_source, g.je_category,
-    g.status estado_asiento_gl, g.posted_date fecha_contabilizacion_gl,
-    b.je_batch_id, b.name lote_gl,
-    CASE WHEN r.je_header_id IS NULL THEN 'SIN REFERENCIA GL'
-         WHEN j.je_header_id IS NULL THEN 'REFERENCIA SIN LINEA GL'
+    xah.application_id, xah.ledger_id, xah.entity_id, xah.event_id, xah.ae_header_id,
+    xah.accounting_date, xah.period_name, xah.je_category_name,
+    xah.accounting_entry_status_code, xah.accounting_entry_type_code,
+    xah.gl_transfer_status_code, xah.gl_transfer_date, xah.balance_type_code,
+    xah.description descripcion_asiento, xah.group_id, xah.request_id,
+    xal.ae_line_num, xal.code_combination_id, xal.accounting_class_code,
+    xal.currency_code, xal.entered_dr, xal.entered_cr, xal.accounted_dr, xal.accounted_cr,
+    xal.currency_conversion_type, xal.currency_conversion_date,
+    xal.currency_conversion_rate, xal.description descripcion_linea,
+    xal.party_id, xal.party_site_id, xal.party_type_code,
+    xal.gl_sl_link_id, xal.gl_sl_link_table,
+    gir.je_header_id cabecera_gl_referencia, gir.je_line_num linea_gl_referencia,
+    gjl.je_header_id, gjl.je_line_num, gjl.code_combination_id cuenta_gl,
+    gjl.entered_dr debe_ingresado_gl, gjl.entered_cr haber_ingresado_gl,
+    gjl.accounted_dr debe_contabilizado_gl, gjl.accounted_cr haber_contabilizado_gl,
+    gjh.name asiento_gl, gjh.ledger_id libro_gl, gjh.period_name periodo_gl,
+    gjh.currency_code moneda_gl, gjh.je_source, gjh.je_category,
+    gjh.status estado_asiento_gl, gjh.posted_date fecha_contabilizacion_gl,
+    gjb.je_batch_id, gjb.name lote_gl,
+    CASE WHEN gir.je_header_id IS NULL THEN 'SIN REFERENCIA GL'
+         WHEN gjl.je_header_id IS NULL THEN 'REFERENCIA SIN LINEA GL'
          ELSE 'CON LINEA GL' END diagnostico_vinculo
-FROM xla_ae_headers h, xla_ae_lines l, gl_import_references r,
-     gl_je_lines j, gl_je_headers g, gl_je_batches b
+FROM xla_ae_headers xah, xla_ae_lines xal, gl_import_references gir,
+     gl_je_lines gjl, gl_je_headers gjh, gl_je_batches gjb
 WHERE
-    h.application_id = :p_application_id
-    AND h.ledger_id = :p_ledger_id
-    AND (:p_ae_header_id IS NULL OR h.ae_header_id = :p_ae_header_id)
-    AND (:p_event_id IS NULL OR h.event_id = :p_event_id)
-    AND (:p_entity_id IS NULL OR h.entity_id = :p_entity_id)
-    AND (:p_period_name IS NULL OR h.period_name = :p_period_name)
+    xah.application_id = :p_application_id
+    AND xah.ledger_id = :p_ledger_id
+    AND (:p_ae_header_id IS NULL OR xah.ae_header_id = :p_ae_header_id)
+    AND (:p_event_id IS NULL OR xah.event_id = :p_event_id)
+    AND (:p_entity_id IS NULL OR xah.entity_id = :p_entity_id)
+    AND (:p_period_name IS NULL OR xah.period_name = :p_period_name)
     AND (:p_accounting_status IS NULL
-         OR h.accounting_entry_status_code = :p_accounting_status)
+         OR xah.accounting_entry_status_code = :p_accounting_status)
     AND (:p_transfer_status IS NULL
-         OR h.gl_transfer_status_code = :p_transfer_status)
+         OR xah.gl_transfer_status_code = :p_transfer_status)
     AND (:p_fecha_desde IS NULL
-         OR h.accounting_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
+         OR xah.accounting_date >= TO_DATE(:p_fecha_desde, 'FXYYYY-MM-DD'))
     AND (:p_fecha_hasta IS NULL
-         OR h.accounting_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
-    AND h.application_id = l.application_id
-    AND h.ae_header_id = l.ae_header_id
-    AND l.gl_sl_link_id = r.gl_sl_link_id(+)
-    AND l.gl_sl_link_table = r.gl_sl_link_table(+)
-    AND r.je_header_id = j.je_header_id(+)
-    AND r.je_line_num = j.je_line_num(+)
-    AND j.je_header_id = g.je_header_id(+)
-    AND g.je_batch_id = b.je_batch_id(+)
-ORDER BY h.ae_header_id, l.ae_line_num, r.je_header_id, r.je_line_num;
+         OR xah.accounting_date < TO_DATE(:p_fecha_hasta, 'FXYYYY-MM-DD') + 1)
+    AND xah.application_id = xal.application_id
+    AND xah.ae_header_id = xal.ae_header_id
+    AND xal.gl_sl_link_id = gir.gl_sl_link_id(+)
+    AND xal.gl_sl_link_table = gir.gl_sl_link_table(+)
+    AND gir.je_header_id = gjl.je_header_id(+)
+    AND gir.je_line_num = gjl.je_line_num(+)
+    AND gjl.je_header_id = gjh.je_header_id(+)
+    AND gjh.je_batch_id = gjb.je_batch_id(+)
+ORDER BY xah.ae_header_id, xal.ae_line_num, gir.je_header_id, gir.je_line_num;

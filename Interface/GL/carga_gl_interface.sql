@@ -3,7 +3,7 @@
 ║  Archivo        : carga_gl_interface.sql                                      ║
 ║  Autor          : Freddy E. Aparicio M.                                       ║
 ║  Fecha creación : 09/10/2026                                                  ║
-║  Versión        : 1.1                                                         ║
+║  Versión        : 1.2                                                         ║
 ║  Descripción    : Carga base de dos líneas y pasos de importación estándar.   ║
 ║                                                                               ║
 ║  Parámetros     : Variables de enlace explícitas.                             ║
@@ -34,6 +34,7 @@
 ║  Actualizaciones:                                                             ║
 ║    09/10/2026: Versión 1.0. Creación - Freddy E. Aparicio M.                  ║
 ║    10/10/2026: Versión 1.1. Español y sintaxis SQL tradicional.               ║
+║    11/10/2026: Versión 1.2. Alias por iniciales de tabla.                     ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -138,44 +139,44 @@ BEGIN
       INTO l_count, l_distinct_bsv
       FROM (
         SELECT CASE l_bal_column
-                   WHEN 'SEGMENT1' THEN cc.segment1
-                   WHEN 'SEGMENT2' THEN cc.segment2
-                   WHEN 'SEGMENT3' THEN cc.segment3
-                   WHEN 'SEGMENT4' THEN cc.segment4
-                   WHEN 'SEGMENT5' THEN cc.segment5
-                   WHEN 'SEGMENT6' THEN cc.segment6
-                   WHEN 'SEGMENT7' THEN cc.segment7
-                   WHEN 'SEGMENT8' THEN cc.segment8
-                   WHEN 'SEGMENT9' THEN cc.segment9
-                   WHEN 'SEGMENT10' THEN cc.segment10
-                   WHEN 'SEGMENT11' THEN cc.segment11
-                   WHEN 'SEGMENT12' THEN cc.segment12
-                   WHEN 'SEGMENT13' THEN cc.segment13
-                   WHEN 'SEGMENT14' THEN cc.segment14
-                   WHEN 'SEGMENT15' THEN cc.segment15
-                   WHEN 'SEGMENT16' THEN cc.segment16
-                   WHEN 'SEGMENT17' THEN cc.segment17
-                   WHEN 'SEGMENT18' THEN cc.segment18
-                   WHEN 'SEGMENT19' THEN cc.segment19
-                   WHEN 'SEGMENT20' THEN cc.segment20
-                   WHEN 'SEGMENT21' THEN cc.segment21
-                   WHEN 'SEGMENT22' THEN cc.segment22
-                   WHEN 'SEGMENT23' THEN cc.segment23
-                   WHEN 'SEGMENT24' THEN cc.segment24
-                   WHEN 'SEGMENT25' THEN cc.segment25
-                   WHEN 'SEGMENT26' THEN cc.segment26
-                   WHEN 'SEGMENT27' THEN cc.segment27
-                   WHEN 'SEGMENT28' THEN cc.segment28
-                   WHEN 'SEGMENT29' THEN cc.segment29
-                   WHEN 'SEGMENT30' THEN cc.segment30
+                   WHEN 'SEGMENT1' THEN gcc.segment1
+                   WHEN 'SEGMENT2' THEN gcc.segment2
+                   WHEN 'SEGMENT3' THEN gcc.segment3
+                   WHEN 'SEGMENT4' THEN gcc.segment4
+                   WHEN 'SEGMENT5' THEN gcc.segment5
+                   WHEN 'SEGMENT6' THEN gcc.segment6
+                   WHEN 'SEGMENT7' THEN gcc.segment7
+                   WHEN 'SEGMENT8' THEN gcc.segment8
+                   WHEN 'SEGMENT9' THEN gcc.segment9
+                   WHEN 'SEGMENT10' THEN gcc.segment10
+                   WHEN 'SEGMENT11' THEN gcc.segment11
+                   WHEN 'SEGMENT12' THEN gcc.segment12
+                   WHEN 'SEGMENT13' THEN gcc.segment13
+                   WHEN 'SEGMENT14' THEN gcc.segment14
+                   WHEN 'SEGMENT15' THEN gcc.segment15
+                   WHEN 'SEGMENT16' THEN gcc.segment16
+                   WHEN 'SEGMENT17' THEN gcc.segment17
+                   WHEN 'SEGMENT18' THEN gcc.segment18
+                   WHEN 'SEGMENT19' THEN gcc.segment19
+                   WHEN 'SEGMENT20' THEN gcc.segment20
+                   WHEN 'SEGMENT21' THEN gcc.segment21
+                   WHEN 'SEGMENT22' THEN gcc.segment22
+                   WHEN 'SEGMENT23' THEN gcc.segment23
+                   WHEN 'SEGMENT24' THEN gcc.segment24
+                   WHEN 'SEGMENT25' THEN gcc.segment25
+                   WHEN 'SEGMENT26' THEN gcc.segment26
+                   WHEN 'SEGMENT27' THEN gcc.segment27
+                   WHEN 'SEGMENT28' THEN gcc.segment28
+                   WHEN 'SEGMENT29' THEN gcc.segment29
+                   WHEN 'SEGMENT30' THEN gcc.segment30
                END balancing_value
-          FROM gl_code_combinations cc
-         WHERE cc.code_combination_id IN (l_debit_ccid, l_credit_ccid)
-           AND cc.chart_of_accounts_id = l_coa_id
-           AND cc.enabled_flag = 'Y' AND cc.summary_flag = 'N'
-           AND cc.detail_posting_allowed_flag = 'Y'
-           AND (cc.start_date_active IS NULL OR cc.start_date_active <= l_accounting_date)
-           AND (cc.end_date_active IS NULL OR cc.end_date_active >= l_accounting_date)
+          FROM gl_code_combinations gcc
+         WHERE gcc.code_combination_id IN (l_debit_ccid, l_credit_ccid)
+           AND gcc.chart_of_accounts_id = l_coa_id
+           AND gcc.enabled_flag = 'Y' AND gcc.summary_flag = 'N'
+           AND gcc.detail_posting_allowed_flag = 'Y'
+           AND (gcc.start_date_active IS NULL OR gcc.start_date_active <= l_accounting_date)
+           AND (gcc.end_date_active IS NULL OR gcc.end_date_active >= l_accounting_date)
       );
     IF l_count <> 2 OR l_distinct_bsv <> 1 THEN
         raise_application_error(-20005, 'Se requieren dos CCID contabilizables válidos con el mismo valor de balanceo.');
