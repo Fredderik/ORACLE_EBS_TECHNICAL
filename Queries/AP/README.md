@@ -5,6 +5,7 @@ Consultas técnicas para **Oracle Payables (AP), Oracle EBS R12 en adelante**: f
 | Archivo | Resultados |
 | --- | --- |
 | [facturas.sql](facturas.sql) | Tres consultas: cabecera; cabecera y líneas; cabecera, líneas y distribuciones. |
+| [pagos.sql](pagos.sql) | Tres consultas: pago, aplicaciones a facturas/cuotas e historial. |
 | [proveedores_configuracion.sql](proveedores_configuracion.sql) | Cinco consultas: proveedor; sitios; contactos y medios TCA; cuentas bancarias; métodos de pago. |
 
 ## Convenciones
@@ -80,6 +81,46 @@ Con `p_org_id` informado, los detalles excluyen sitios de otras unidades operati
 Se incluyen registros inactivos y fechas de vigencia para diagnóstico. En contactos, los campos AP y los medios de `HZ_CONTACT_POINTS` se muestran por separado; estos últimos corresponden a `REL_PARTY_ID`, no a todas las relaciones de la persona.
 
 Los números bancarios e IBAN se presentan mediante los campos enmascarados de Oracle Payments. Se muestra el nivel de configuración: proveedor, organización, dirección TCA o sitio AP. **La consulta no calcula la herencia ni garantiza cuál cuenta seleccionará el motor de pagos.** Las cuentas pertenecen al beneficiario registrado, no se determina la titularidad legal de cada cuenta. Métodos, contactos y cuentas se consultan por separado para evitar multiplicaciones entre estas listas.
+
+## Pagos
+
+[pagos.sql](pagos.sql) incluye tres consultas independientes:
+
+1. Cabecera del pago, datos guardados del proveedor y referencia opcional al estado de Oracle Payments.
+2. Aplicaciones a facturas y cuotas de vencimiento, importes, descuentos, indicadores contables y reversiones.
+3. Historial de eventos registrados del pago, con referencias contables y montos por moneda.
+
+El parámetro obligatorio es `p_org_id`, la unidad operativa del **pago**. Son opcionales `p_check_id`, `p_check_number`, `p_vendor_id`, `p_fecha_desde` y `p_fecha_hasta`. Todos los identificadores y el número de pago son `NUMBER`; las fechas son texto `YYYY-MM-DD` e incluyen completos ambos días sobre `CHECK_DATE`. No se necesita idioma porque se muestran códigos y nombres almacenados.
+
+```sql
+VARIABLE p_org_id NUMBER
+VARIABLE p_check_id NUMBER
+VARIABLE p_check_number NUMBER
+VARIABLE p_vendor_id NUMBER
+VARIABLE p_fecha_desde VARCHAR2(10)
+VARIABLE p_fecha_hasta VARCHAR2(10)
+
+EXEC :p_org_id := 204;
+EXEC :p_check_id := 12345;
+EXEC :p_check_number := NULL;
+EXEC :p_vendor_id := NULL;
+EXEC :p_fecha_desde := NULL;
+EXEC :p_fecha_hasta := NULL;
+
+@Queries/AP/pagos.sql
+```
+
+`AP_CHECKS_ALL` comprende cheques, pagos electrónicos y reembolsos. `CHECK_NUMBER` no identifica de manera única un pago: utiliza `CHECK_ID` para uno concreto. Un rango de fechas invertido no devuelve filas.
+
+Se conservan pagos sin aplicaciones, sin historia o sin registro IBY asociado. El detalle de facturas se vincula a su cuota mediante `INVOICE_ID` y `PAYMENT_NUM`. Las organizaciones de aplicación y factura se muestran por separado y no se fuerzan a coincidir con la del pago, para conservar las relaciones registradas en pagos centralizados.
+
+Los pagos anulados y las aplicaciones de reversión se muestran con su signo e identificadores. **No sumes `importe_pago` repetido en los detalles ni uses valores absolutos para netear reversiones.** El historial se consulta separado de las aplicaciones para evitar multiplicaciones. Los importes base, del pago y de la factura se muestran por separado; no deben mezclarse entre monedas. `saldo_actual_cuota` es el saldo vigente al consultar, no el saldo histórico después de esa aplicación, y puede repetirse en varias aplicaciones.
+
+No se reconstruyen los asientos SLA/GL ni todos los movimientos del extracto bancario. El filtro de OU no valida autorizaciones MOAC. No se publican números bancarios completos en el resultado.
+
+Referencias Oracle eTRM (copias archivadas): [pagos](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnav34dd.html), [aplicaciones a facturas](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnav2024.html), [cuotas](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnavbf96.html) e [historial](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnavd231.html).
+
+La revisión conjunta con los nuevos scripts PO pasó 41 comprobaciones de lógica sobre diez consultas mediante datos ficticios y adaptación a SQLite. Pendiente ejecución nativa Oracle EBS.
 
 ## Referencias y validación
 

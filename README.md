@@ -27,8 +27,9 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [PO: compras](Queries/PO/README.md) | Órdenes, líneas, envíos, distribuciones y configuración de compras. |
 | [AR: cuentas por cobrar](Queries/AR/README.md) | Transacciones, líneas y distribuciones; clientes y configuración de cobro. |
-| [AP: cuentas por pagar](Queries/AP/README.md) | Facturas por cabecera, líneas y distribuciones; proveedores y configuración. |
+| [AP: cuentas por pagar](Queries/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
 | [GL: contabilidad general](Queries/GL/README.md) | Detalle de asientos, análisis de cuenta, configuración e interfaz de importación. |
 | [FND: componentes del sistema](Queries/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
 | [Servidor de aplicaciones](Application_Server/README.md) | Árbol de directorios, archivos por idioma y diferencias entre R12.1 y R12.2. |
@@ -46,11 +47,16 @@ ORACLE_EBS_TECHNICAL/
     ├── AP/
     │   ├── README.md
     │   ├── facturas.sql
+    │   ├── pagos.sql
     │   └── proveedores_configuracion.sql
     ├── AR/
     │   ├── README.md
     │   ├── facturas.sql
     │   └── clientes_configuracion.sql
+    ├── PO/
+    │   ├── README.md
+    │   ├── ordenes_compra.sql
+    │   └── configuracion_compras.sql
     ├── FND/
     │   ├── README.md
     │   ├── analisis_solicitud.sql
@@ -74,7 +80,7 @@ ORACLE_EBS_TECHNICAL/
 
 ## Cómo utilizar los recursos
 
-Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros, conciliación y plantilla de carga](Queries/GL/README.md). Para AP, consulta los [parámetros y ejemplos de facturas y proveedores](Queries/AP/README.md). Para AR, consulta los [ejemplos de transacciones y configuración de clientes](Queries/AR/README.md).
+Las instrucciones siguientes corresponden a las consultas FND. Para GL, consulta sus [parámetros, conciliación y plantilla de carga](Queries/GL/README.md). Para AP, consulta los [parámetros y ejemplos de facturas y proveedores](Queries/AP/README.md). Para AR, consulta los [ejemplos de transacciones y configuración de clientes](Queries/AR/README.md). Para PO, consulta las [órdenes y configuración de compras](Queries/PO/README.md).
 
 1. Selecciona el recurso y revisa su descripción, parámetros y requisitos.
 2. Comprueba que los objetos y permisos necesarios estén disponibles en tu entorno de Oracle EBS.
