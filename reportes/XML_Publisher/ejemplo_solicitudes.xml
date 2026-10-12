@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Datos ficticios de prueba. Freddy E. Aparicio M. 12/10/2026. Versión 1.0. -->
+<XXFND_SOLICITUDES>
+  <G_SOLICITUD>
+    <SOLICITUD_ID>10001</SOLICITUD_ID>
+    <PROGRAMA>Ejemplo de validación &amp; carga</PROGRAMA>
+    <FASE>C</FASE><ESTADO>C</ESTADO>
+    <FECHA_SOLICITUD>2026-10-12 08:00:00</FECHA_SOLICITUD>
+  </G_SOLICITUD>
+  <G_SOLICITUD>
+    <SOLICITUD_ID>10002</SOLICITUD_ID>
+    <PROGRAMA>Ejemplo de importación</PROGRAMA>
+    <FASE>R</FASE><ESTADO>R</ESTADO>
+    <FECHA_SOLICITUD>2026-10-12 09:00:00</FECHA_SOLICITUD>
+  </G_SOLICITUD>
+</XXFND_SOLICITUDES>

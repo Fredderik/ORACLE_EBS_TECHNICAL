@@ -1,0 +1,15 @@
+{\rtf1\ansi\ansicpg1252\deff0
+{\fonttbl{\f0 Arial;}}
+{\info{\title Solicitudes concurrentes}{\author Freddy E. Aparicio M.}{\comment Version 1.0. Creacion: 12/10/2026. Ejemplo XML Publisher.}}
+\paperw11907\paperh16840\margl1134\margr1134\margt1134\margb1134
+\fs28\b Solicitudes concurrentes\b0\par
+\fs20 <?for-each:G_SOLICITUD?>\par
+\b Solicitud: \b0 <?SOLICITUD_ID?>\par
+\b Programa: \b0 <?PROGRAMA?>\par
+\b Fase / estado (c\u243?digos): \b0 <?FASE?> / <?ESTADO?>\par
+\b Fecha: \b0 <?FECHA_SOLICITUD?>\par
+\par
+<?end for-each?>\par
+<?if:count(G_SOLICITUD)=0?>Sin solicitudes para los filtros indicados.<?end if?>\par
+}
+

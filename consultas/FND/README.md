@@ -63,3 +63,7 @@ En R12.2, los sinónimos estándar pueden resolver a vistas de edición internas
 Consulta los [ejemplos de ejecución del repositorio](../../README.md#cómo-utilizar-los-recursos). Para ubicar los archivos físicos de los componentes, continúa con [Servidor de aplicaciones](../../Application_Server/README.md).
 
 [Volver al inicio](../../README.md)
+
+## Diagnóstico de concurrentes
+
+La [guía de diagnóstico](diagnostico_concurrentes.md) complementa el análisis de una ejecución con [jerarquía de solicitudes](jerarquia_solicitudes.sql), [reglas de incompatibilidad](incompatibilidades.sql) y [gestor e identificadores de sesión](gestor_solicitud.sql). Para fallos de transformación de salida, consultar [XML/BI Publisher](../../reportes/XML_Publisher/README.md).

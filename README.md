@@ -27,6 +27,9 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [Diagnóstico de concurrentes](consultas/FND/diagnostico_concurrentes.md) | Jerarquía, incompatibilidades, gestor e identificadores de sesión. |
+| [XML/BI Publisher](reportes/XML_Publisher/README.md) | Ejemplo SQL, Data Template, XML ficticio, RTF y diagnóstico. |
+| [Trazabilidad entre módulos](consultas/XLA/trazabilidad_modulos.md) | Recorridos AP, AR y FA hacia XLA y GL. |
 | [Utilidades FND](utilidades/FND/README.md) | Contexto EBS/MO, envío y espera de concurrentes, juegos y plantilla PL/SQL. |
 | [PER: recursos humanos (HRMS)](consultas/PER/README.md) | Personas, asignaciones, organizaciones, cargos, posiciones y períodos de servicio. |
 | [FA: activos fijos](consultas/FA/README.md) | Activos, libros, períodos, depreciación y movimientos. |
@@ -64,6 +67,16 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       ├── XX_EJEMPLO_HOST.prog
 │       └── EjemploBasico.java
+├── reportes/
+│   ├── README.md
+│   └── XML_Publisher/
+│       ├── README.md
+│       ├── solicitudes.sql
+│       ├── XXFND_SOLICITUDES.xml
+│       ├── ejemplo_solicitudes.xml
+│       ├── solicitudes.rtf
+│       ├── diagnostico_configuracion.sql
+│       └── diagnostico_salida.sql
 ├── utilidades/
 │   ├── README.md
 │   └── FND/
@@ -126,7 +139,11 @@ ORACLE_EBS_TECHNICAL/
     │   ├── eventos_contables.sql
     │   ├── asientos_detalle.sql
     │   ├── distribuciones_origen.sql
-    │   └── trazabilidad_gl.sql
+    │   ├── trazabilidad_gl.sql
+    │   ├── trazabilidad_modulos.md
+    │   ├── ap_factura_xla.sql
+    │   ├── ar_transaccion_xla.sql
+    │   └── fa_depreciacion_xla.sql
     ├── CE/
     │   ├── README.md
     │   ├── cuentas_bancarias.sql
@@ -150,6 +167,10 @@ ORACLE_EBS_TECHNICAL/
     ├── FND/
     │   ├── README.md
     │   ├── analisis_solicitud.sql
+    │   ├── diagnostico_concurrentes.md
+    │   ├── jerarquia_solicitudes.sql
+    │   ├── incompatibilidades.sql
+    │   ├── gestor_solicitud.sql
     │   ├── cp_and_executable.sql
     │   └── executables.sql
     └── GL/

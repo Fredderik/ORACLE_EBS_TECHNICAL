@@ -19,7 +19,7 @@ Declarar todas las variables del archivo, también las opcionales. NULL omite un
 
 | Parámetro | Tipo | Alcance |
 | --- | --- | --- |
-| p_application_id | NUMBER, obligatorio en todos | Aplicación de origen del asiento/evento, no fijar siempre la aplicación XLA. |
+| p_application_id | NUMBER, obligatorio en los cuatro scripts originales | Aplicación de origen del asiento/evento, no fijar siempre la aplicación XLA. |
 | p_ledger_id | NUMBER, obligatorio salvo eventos | Libro de XLA_AE_HEADERS. |
 | p_entity_ledger_id | NUMBER, opcional, solo eventos | Libro de XLA_TRANSACTION_ENTITIES. |
 | p_entity_id, p_event_id | NUMBER, opcionales | Entidad y evento dentro de la aplicación indicada. |
@@ -100,3 +100,9 @@ EXEC :p_process_status := NULL;
 Estructuras contrastadas con metadatos Oracle eTRM archivados: [entidades](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnavd662-2.html), [eventos](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnavfa2e-2.html), [cabeceras](https://etrm.live/etrm-12.1.1/etrm.oracle.com/pls/et1211d9/etrm_pnav095c-2.html), [líneas](https://etrm.live/etrm-12.1.1/etrm.oracle.com/pls/et1211d9/etrm_pnav0275-2.html), [distribuciones](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnavd003.html) y [referencias GL](https://etrm.live/etrm-12.2.2/etrm.oracle.com/pls/trm1222/etrm_pnav2488.html).
 
 La revisión local usa datos ficticios y adaptación de las relaciones a SQLite. No equivale a compilación ni ejecución nativa en Oracle. Pendiente validar los scripts en la instancia EBS y nivel de parches donde se utilizarán.
+
+## Trazabilidad entre módulos
+
+La [guía de trazabilidad](trazabilidad_modulos.md) documenta compras→AP, pedidos→AR y activos→depreciación, y explica cómo continuar hasta GL sin duplicar importes.
+
+Nuevos puntos de entrada: [factura AP](ap_factura_xla.sql), [transacción AR](ar_transaccion_xla.sql) y [depreciación FA](fa_depreciacion_xla.sql). **Sus parámetros son específicos** y se describen en sus cabeceras y en la guía; la tabla anterior corresponde a los cuatro scripts originales.
