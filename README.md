@@ -27,6 +27,9 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [FA: activos fijos](consultas/FA/README.md) | Activos, libros, períodos, depreciación y movimientos. |
+| [IBY: procesamiento de pagos](consultas/IBY/README.md) | Solicitudes, pagos, instrucciones, documentos y errores. |
+| [ZX: impuestos](consultas/ZX/README.md) | Regímenes, tasas, líneas fiscales y distribuciones. |
 | [QP: listas de precios](consultas/QP/README.md) | Cabeceras, líneas, atributos de producto/precio y calificadores. |
 | [INV: inventario](consultas/INV/README.md) | Artículos, existencias, movimientos con lotes y configuración de almacenes. |
 | [ONT: gestión de pedidos (OM)](consultas/ONT/README.md) | Pedidos y líneas, despachos WSH, facturación AR y configuración. |
@@ -65,6 +68,23 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
 └── consultas/
+    ├── FA/
+    │   ├── README.md
+    │   ├── activos.sql
+    │   ├── depreciacion.sql
+    │   ├── movimientos.sql
+    │   └── libros_periodos.sql
+    ├── IBY/
+    │   ├── README.md
+    │   ├── solicitudes.sql
+    │   ├── pagos_instrucciones.sql
+    │   ├── documentos_pagables.sql
+    │   └── errores_validacion.sql
+    ├── ZX/
+    │   ├── README.md
+    │   ├── regimenes_impuestos.sql
+    │   ├── tasas.sql
+    │   └── impuestos_transaccion.sql
     ├── QP/
     │   ├── README.md
     │   ├── listas_precios.sql
