@@ -27,6 +27,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [PER: recursos humanos (HRMS)](consultas/PER/README.md) | Personas, asignaciones, organizaciones, cargos, posiciones y períodos de servicio. |
 | [FA: activos fijos](consultas/FA/README.md) | Activos, libros, períodos, depreciación y movimientos. |
 | [IBY: procesamiento de pagos](consultas/IBY/README.md) | Solicitudes, pagos, instrucciones, documentos y errores. |
 | [ZX: impuestos](consultas/ZX/README.md) | Regímenes, tasas, líneas fiscales y distribuciones. |
@@ -68,6 +69,13 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
 └── consultas/
+    ├── PER/
+    │   ├── README.md
+    │   ├── personas.sql
+    │   ├── asignaciones.sql
+    │   ├── organizaciones.sql
+    │   ├── cargos_posiciones.sql
+    │   └── periodos_servicio.sql
     ├── FA/
     │   ├── README.md
     │   ├── activos.sql
