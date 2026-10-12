@@ -27,6 +27,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 
 | Recurso | Descripción |
 | --- | --- |
+| [Utilidades FND](utilidades/FND/README.md) | Contexto EBS/MO, envío y espera de concurrentes, juegos y plantilla PL/SQL. |
 | [PER: recursos humanos (HRMS)](consultas/PER/README.md) | Personas, asignaciones, organizaciones, cargos, posiciones y períodos de servicio. |
 | [FA: activos fijos](consultas/FA/README.md) | Activos, libros, períodos, depreciación y movimientos. |
 | [IBY: procesamiento de pagos](consultas/IBY/README.md) | Solicitudes, pagos, instrucciones, documentos y errores. |
@@ -63,6 +64,16 @@ ORACLE_EBS_TECHNICAL/
 │       ├── README.md
 │       ├── XX_EJEMPLO_HOST.prog
 │       └── EjemploBasico.java
+├── utilidades/
+│   ├── README.md
+│   └── FND/
+│       ├── README.md
+│       ├── inicializar_contexto.sql
+│       ├── establecer_contexto_mo.sql
+│       ├── lanzar_concurrente.sql
+│       ├── lanzar_juego_solicitudes.sql
+│       ├── esperar_concurrente.sql
+│       └── plantilla_programa_concurrente.sql
 ├── Interface/
 │   ├── README.md
 │   └── GL/
