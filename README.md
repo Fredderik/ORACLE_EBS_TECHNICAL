@@ -45,6 +45,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 | [AP: cuentas por pagar](consultas/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
 | [GL: contabilidad general](consultas/GL/README.md) | Detalle de asientos, análisis de cuenta y configuración. |
 | [FND: componentes del sistema](consultas/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
+| [APIs públicas](API/README.md) | Ejemplos AP para crear proveedores, sitios y contactos con retorno y control de transacción. |
 | [Interfaces](Interface/README.md) | Cargas GL, AP y AR: asientos, facturas, proveedores, clientes y diagnóstico de interfaces. |
 | [Generador de migración BI Publisher](Application_Server/fndload/generar_migracion_bip.md) | Genera un shell de descarga e instalación desde la aplicación y nombre corto del concurrente. |
 | [FNDLOAD y XDOLoader](Application_Server/fndload/README.md) | Comandos de descarga y subida de componentes AOL y XML Publisher. |
@@ -90,6 +91,13 @@ ORACLE_EBS_TECHNICAL/
 │       ├── lanzar_juego_solicitudes.sql
 │       ├── esperar_concurrente.sql
 │       └── plantilla_programa_concurrente.sql
+├── API/
+│   ├── README.md
+│   └── AP/
+│       ├── README.md
+│       ├── crear_proveedor.sql
+│       ├── crear_sitio.sql
+│       └── crear_contacto.sql
 ├── Interface/
 │   ├── README.md
 │   ├── AP/
