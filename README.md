@@ -46,6 +46,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 | [GL: contabilidad general](consultas/GL/README.md) | Detalle de asientos, análisis de cuenta y configuración. |
 | [FND: componentes del sistema](consultas/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
 | [Interfaces](Interface/README.md) | Cargas e integraciones: plantilla GL_INTERFACE e importación de asientos. |
+| [Generador de migración BI Publisher](Application_Server/fndload/generar_migracion_bip.md) | Genera un shell de descarga e instalación desde la aplicación y nombre corto del concurrente. |
 | [FNDLOAD y XDOLoader](Application_Server/fndload/README.md) | Comandos de descarga y subida de componentes AOL y XML Publisher. |
 | [Shell básico Host](Application_Server/bin/README.md) | Log, variables, condicionales, bucle, SQL, Java y SFTP; despliegue en bin. |
 | [Servidor de aplicaciones](Application_Server/README.md) | Árbol de directorios, archivos por idioma y diferencias entre R12.1 y R12.2. |
@@ -62,7 +63,9 @@ ORACLE_EBS_TECHNICAL/
 │   ├── fndload/
 │   │   ├── README.md
 │   │   ├── componentes_aol.md
-│   │   └── xml_publisher.md
+│   │   ├── xml_publisher.md
+│   │   ├── generar_migracion_bip.md
+│   │   └── generar_migracion_bip.sql
 │   └── bin/
 │       ├── README.md
 │       ├── XX_EJEMPLO_HOST.prog

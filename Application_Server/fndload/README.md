@@ -2,10 +2,11 @@
 
 Autor: **Freddy E. Aparicio M.** · Versión **1.0** · Fecha: **10/10/2026**.
 
-Guía de descarga y subida para Oracle EBS **R12.1 y R12.2** desde el servidor de aplicaciones UNIX/Linux. Los bloques son ejemplos independientes para ejecutar manualmente, no un despliegue automático.
+Guía de descarga y subida para Oracle EBS **R12.1 y R12.2** desde el servidor de aplicaciones UNIX/Linux. Los bloques de las guías son ejemplos independientes. El generador BI Publisher produce un shell específico con modos de descarga e instalación.
 
 | Documento | Componentes |
 | --- | --- |
+| [Generador de migración BI Publisher](generar_migracion_bip.md) | PL/SQL que genera por DBMS_OUTPUT el shell de descarga/instalación de un concurrente y sus componentes. |
 | [Componentes AOL](componentes_aol.md) | Concurrentes, ejecutables, conjuntos de valores, lookups, grupos de solicitudes, formularios, funciones, menús, perfiles, mensajes, DFF y KFF. |
 | [XML Publisher](xml_publisher.md) | Data Definitions, metadatos de plantillas, archivos RTF, XML de ejemplo y esquemas XSD. |
 

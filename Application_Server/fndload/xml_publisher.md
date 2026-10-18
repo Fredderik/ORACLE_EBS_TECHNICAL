@@ -4,6 +4,10 @@ Autor: **Freddy E. Aparicio M.** · Versión **1.0** · Fecha: **10/10/2026**.
 
 FNDLOAD transporta metadatos mediante `xdotmpl.lct`; XDOLoader transporta los archivos. Revisa la [preparación general](README.md) antes de ejecutar los ejemplos. Cambia `XXCUS`, `XX_REPORTE` y `XX_REPORTE_RTF` por las claves del componente.
 
+## Generar un paquete desde el concurrente
+
+El [generador de migración](generar_migracion_bip.md) recibe aplicación y nombre corto del concurrente, identifica sus componentes y devuelve por DBMS_OUTPUT un shell con descarga, instalación, estructura de carpetas y logs.
+
 ## Data Definition y sus plantillas
 
 Descarga la definición de datos con los metadatos de sus plantillas asociadas:
