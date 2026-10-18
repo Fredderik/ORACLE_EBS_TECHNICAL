@@ -45,7 +45,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 | [AP: cuentas por pagar](consultas/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
 | [GL: contabilidad general](consultas/GL/README.md) | Detalle de asientos, análisis de cuenta y configuración. |
 | [FND: componentes del sistema](consultas/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
-| [Interfaces](Interface/README.md) | Cargas e integraciones: plantilla GL_INTERFACE e importación de asientos. |
+| [Interfaces](Interface/README.md) | Cargas GL y AP: asientos, facturas, proveedores, sitios, contactos y diagnóstico. |
 | [Generador de migración BI Publisher](Application_Server/fndload/generar_migracion_bip.md) | Genera un shell de descarga e instalación desde la aplicación y nombre corto del concurrente. |
 | [FNDLOAD y XDOLoader](Application_Server/fndload/README.md) | Comandos de descarga y subida de componentes AOL y XML Publisher. |
 | [Shell básico Host](Application_Server/bin/README.md) | Log, variables, condicionales, bucle, SQL, Java y SFTP; despliegue en bin. |
@@ -92,6 +92,14 @@ ORACLE_EBS_TECHNICAL/
 │       └── plantilla_programa_concurrente.sql
 ├── Interface/
 │   ├── README.md
+│   ├── AP/
+│   │   ├── README.md
+│   │   ├── carga_facturas.sql
+│   │   ├── carga_proveedores.sql
+│   │   ├── carga_sitios.sql
+│   │   ├── carga_contactos.sql
+│   │   ├── diagnostico_facturas.sql
+│   │   └── diagnostico_proveedores.sql
 │   └── GL/
 │       ├── README.md
 │       └── carga_gl_interface.sql
