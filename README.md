@@ -45,7 +45,7 @@ La versión objetivo no implica que todos los recursos estén probados en cada v
 | [AP: cuentas por pagar](consultas/AP/README.md) | Facturas, proveedores, configuración y análisis de pagos. |
 | [GL: contabilidad general](consultas/GL/README.md) | Detalle de asientos, análisis de cuenta y configuración. |
 | [FND: componentes del sistema](consultas/FND/README.md) | Introducción y catálogo de consultas técnicas de FND. |
-| [APIs públicas](API/README.md) | Ejemplos AP y HRMS/PER para proveedores, empleados, asignaciones, cargos y ubicaciones. |
+| [APIs públicas](API/README.md) | Ejemplos AP, AR y HRMS/PER: proveedores, facturación, cobros y recursos humanos. |
 | [Interfaces](Interface/README.md) | Cargas GL, AP y AR: asientos, facturas, proveedores, clientes y diagnóstico de interfaces. |
 | [Generador de migración BI Publisher](Application_Server/fndload/generar_migracion_bip.md) | Genera un shell de descarga e instalación desde la aplicación y nombre corto del concurrente. |
 | [FNDLOAD y XDOLoader](Application_Server/fndload/README.md) | Comandos de descarga y subida de componentes AOL y XML Publisher. |
@@ -98,6 +98,16 @@ ORACLE_EBS_TECHNICAL/
 │   │   ├── crear_proveedor.sql
 │   │   ├── crear_sitio.sql
 │   │   └── crear_contacto.sql
+│   ├── AR/
+│   │   ├── README.md
+│   │   ├── ejemplos_ejecucion.md
+│   │   ├── crear_factura.sql
+│   │   ├── crear_recibo.sql
+│   │   ├── aplicar_recibo.sql
+│   │   ├── desaplicar_recibo.sql
+│   │   ├── revertir_recibo.sql
+│   │   ├── crear_ajuste.sql
+│   │   └── diagnostico_operaciones.sql
 │   └── PER/
 │       ├── README.md
 │       ├── ejemplos_ejecucion.md
