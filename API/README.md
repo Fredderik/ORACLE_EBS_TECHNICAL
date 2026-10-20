@@ -7,6 +7,7 @@ Ejemplos PL/SQL de llamadas a paquetes públicos de EBS, organizados por aplicac
 | [AP](AP/README.md) | Crear proveedores, sitios y contactos con AP_VENDOR_PUB_PKG. |
 | [AR](AR/README.md) | Facturas, recibos, aplicaciones, reversión y ajustes. |
 | [CE](CE/README.md) | Bancos, sucursales, cuentas internas y usos AP/AR. |
+| [FND](FND/README.md) | Obtener o crear combinaciones contables con FND_FLEX_EXT. |
 | [PO](PO/README.md) | Actualizar órdenes, registrar aceptación/rechazo y cancelar documentos. |
 | [QP](QP/README.md) | Listas de precios, artículos, actualización de precios y descuentos. |
 | [PER / HRMS](PER/README.md) | Empleados, asignaciones, cargos y ubicaciones. |
